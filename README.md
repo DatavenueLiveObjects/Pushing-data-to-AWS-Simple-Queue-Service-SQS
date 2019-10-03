@@ -28,7 +28,7 @@ Mqtt2Sqs supports only the communication from Live Objects i.e. it reads message
 
 Provisioning of IoT devices is within the scope of Live Objects; Mqtt2Sqs has no knowledge on what devices are communicating; it is just transparently moving messages from Live Objects to AWS SQS. It is assumed that business logic acting on those messages is to be applied by applications consuming the messages from SQS.
 
-![architecture](/AWS%20SQS/images/arch.png)
+![architecture](/images/arch.png)
 
 ### Performance & scalability
 
@@ -81,9 +81,9 @@ URL of your SQS service.
 ### Metrics
 Application sends its metrics to Cloud Watch Metrics every 1 minute. There are number of available metrics e.g. amount of received, sent and failured messages. You can watch them all in Amazon Cloud Watch console under "Metrics" in namespace - mqtt2sqs.
 
-![metric1](/AWS%20SQS/images/metr1.png)
+![metric1](/images/metr1.png)
 
-![metric2](/AWS%20SQS/images/metr2.png)
+![metric2](/images/metr2.png)
 
 ### Health Check
 You can configure Alarm to notify when something goes wrong with your environment. Details can be found [here](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/using-features.alarms.html)   
