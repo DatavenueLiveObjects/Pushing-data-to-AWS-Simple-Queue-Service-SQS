@@ -1,0 +1,28 @@
+lo-mqtt:
+  uri: ssl://liveobjects.orange-business.com:8883
+  username:
+  api-key:
+  topic: fifo/dev
+  recovery-interval: 10000
+  completion-timeout: 20000
+  connection-timeout: 30000
+  qos: 1
+  keep-alive-interval-seconds: 30
+
+azure:
+  evt-hub:
+    name-space:
+    evt-hub-name:
+    sas-key-name: RootManageSharedAccessKey
+    sas-key:
+    thread-pool-size: 40
+    task-queue-size: 150000
+    connection-timeout: 5000
+    throttling-delay: 5000
+    max-send-attempts: 3
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info, health, metrics, beans
