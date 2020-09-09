@@ -28,7 +28,7 @@ Mqtt2Sqs supports only the communication from Live Objects i.e. it reads message
 
 Provisioning of IoT devices is within the scope of Live Objects; Mqtt2Sqs has no knowledge on what devices are communicating; it is just transparently moving messages from Live Objects to AWS SQS. It is assumed that business logic acting on those messages is to be applied by applications consuming the messages from SQS.
 
-![architecture](/images/arch.png)
+![architecture](/images/architecture.png)
 
 ### Performance & scalability
 
