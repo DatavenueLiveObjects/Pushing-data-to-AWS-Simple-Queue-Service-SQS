@@ -1,0 +1,11 @@
+COMPONENT                               | VERSION       | LICENCE                    | URL
+----------------------------------------------------------------------------------------------------------------------------------------------
+Spring Boot Starter Integration         | 2.1.4.RELEASE | Apache License 2.0         | https://www.apache.org/licenses/LICENSE-2.0
+Spring Integration MQTT Support         | 5.1.4.RELEASE | Apache License 2.0         | https://www.apache.org/licenses/LICENSE-2.0
+Spring Boot Starter Web                 | 2.1.4.RELEASE | Apache License 2.0         | https://www.apache.org/licenses/LICENSE-2.0
+Spring Boot Starter Test                | 2.1.4.RELEASE | Apache License 2.0         | https://www.apache.org/licenses/LICENSE-2.0
+Project ':json Path'                    | 2.4.0         | Apache License 2.0         | https://www.apache.org/licenses/LICENSE-2.0
+Guava: Google Core Libraries For Java   | 29.0-jre      | Apache License 2.0         | https://www.apache.org/licenses/LICENSE-2.0
+AWS Java SDK For Amazon SQS             | 1.1556        | Apache License 2.0         | https://aws.amazon.com/apache-2-0/
+Spring Boot Starter Actuator            | 2.1.4.RELEASE | Apache License 2.0         | https://www.apache.org/licenses/LICENSE-2.0
+Micrometer Registry CloudWatch          | 1.1.4         | Apache License 2.0         | http://www.apache.org/licenses/LICENSE-2.0.txt
