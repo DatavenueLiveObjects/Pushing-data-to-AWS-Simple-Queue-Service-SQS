@@ -10,7 +10,6 @@ package com.orange.lo.sample.sqs.sqs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.integration.endpoint.MessageProducerSupport;
@@ -30,14 +29,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @Controller
 public class ApiController {
 
-    private Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final SqsSender sqsSender;
     private MessageProducerSupport mqttInbound;
     private Queue<String> messageQueue;
 
-    @Autowired
     public ApiController(SqsSender sqsSender, MessageProducerSupport mqttInbound) {
-        log.info("ApiController init...");
+        LOG.info("ApiController init...");
         this.sqsSender = sqsSender;
         this.mqttInbound = mqttInbound;
         messageQueue = new ConcurrentLinkedQueue<>();
@@ -45,32 +43,32 @@ public class ApiController {
 
     @GetMapping(path="/start")
     public ResponseEntity<String> startMqtt() {
-        log.info("STARTING MQTT");
+        LOG.info("STARTING MQTT");
         mqttInbound.start();
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping(path="/stop")
     public ResponseEntity<String> stopMqtt() {
-        log.info("STOPPING MQTT");
-        mqttInbound.stop(() -> log.info("STOPPED"));
+        LOG.info("STOPPING MQTT");
+        mqttInbound.stop(() -> LOG.info("STOPPED"));
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping(path="/testsend")
     public ResponseEntity<String> sendMessageToSqs(@RequestParam(name = "count", defaultValue = "1") int messageCount) {
-        log.info("Store in queue start ({})...", messageCount);
+        LOG.info("Store in queue start ({})...", messageCount);
         for (int i = 1; i <= messageCount; i++) {
             messageQueue.add(String.format("{ test: \"%d\" }", i));
         }
-        log.info("...store complete");
+        LOG.info("...store complete");
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Scheduled(fixedDelay = 1000)
     public void send() {
         if (!messageQueue.isEmpty()) {
-            log.info("Start retriving messages...");
+            LOG.info("Start retriving messages...");
             List<String> messageBatch = Lists.newArrayListWithCapacity(10);
             while (!messageQueue.isEmpty()) {
                 messageBatch.add(messageQueue.poll());

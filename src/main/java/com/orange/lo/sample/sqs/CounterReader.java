@@ -7,12 +7,12 @@
 
 package com.orange.lo.sample.sqs;
 
+import com.orange.lo.sample.sqs.utils.Counters;
 import io.micrometer.core.instrument.Counter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -23,7 +23,7 @@ import java.lang.invoke.MethodHandles;
 @Component
 public class CounterReader {
 
-    private Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private Counter mqttRead;
     private Counter evtAttempt;
     private Counter evtOK;
@@ -33,7 +33,6 @@ public class CounterReader {
     private Counter evtRejected;
     private long oldEvtOk;
 
-    @Autowired
     public CounterReader(Counters counterProvider) {
         mqttRead = counterProvider.mqttEvents();
         evtAttempt = counterProvider.evtAttemptCount();
@@ -50,9 +49,9 @@ public class CounterReader {
         long rate = val(evtOK) - oldEvtOk;
         oldEvtOk = val(evtOK);
         if (rate > 0) {
-            log.info("Mqtt received: {}, EvtSend attempted/rejected: {}/{}", val(mqttRead), val(evtAttempt), val(evtRejected));  //EvtSend can be either an attempt or reject
-            log.info("Attempted EvtSend OK/abort: {}/{}, Evt KO: {}, Evt retries: {}", val(evtOK), val(evtAborted), val(evtKO), val(evtRetried)); //EvtSend attempt can be either OK or abort
-            log.info("Rate: {} [msgs/s]", rate);
+            LOG.info("Mqtt received: {}, EvtSend attempted/rejected: {}/{}", val(mqttRead), val(evtAttempt), val(evtRejected));  //EvtSend can be either an attempt or reject
+            LOG.info("Attempted EvtSend OK/abort: {}/{}, Evt KO: {}, Evt retries: {}", val(evtOK), val(evtAborted), val(evtKO), val(evtRetried)); //EvtSend attempt can be either OK or abort
+            LOG.info("Rate: {} [msgs/s]", rate);
         }
     }
 
