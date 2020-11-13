@@ -23,7 +23,6 @@ import java.lang.invoke.MethodHandles;
 
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Component
 public class MqttHandler {
@@ -33,11 +32,11 @@ public class MqttHandler {
     private Counter mqttEvtCounter;
     private Queue<String> messageQueue;
 
-    public MqttHandler(SqsSender sqsSender, Counters counterProvider) {
+    public MqttHandler(SqsSender sqsSender, Counters counterProvider, Queue<String> messageQueue) {
         LOG.info("MqttHandler init...");
         this.sqsSender = sqsSender;
         mqttEvtCounter = counterProvider.mqttEvents();
-        messageQueue = new ConcurrentLinkedQueue<>();
+        this.messageQueue = messageQueue;
     }
 
     public void handleMessage(Message<String> message) {
