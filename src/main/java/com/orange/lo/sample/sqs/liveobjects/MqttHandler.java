@@ -59,7 +59,8 @@ public class MqttHandler {
                     messageBatch.clear();
                 }
             }
-            if (messageBatch.size() > 0)
+
+            if (!messageBatch.isEmpty())
                 sqsSender.send(Lists.newArrayList(messageBatch));
         }
     }

@@ -52,7 +52,7 @@ public class CounterReader {
         if (rate > 0) {
             log.info("Mqtt received: {}, EvtSend attempted/rejected: {}/{}", val(mqttRead), val(evtAttempt), val(evtRejected));  //EvtSend can be either an attempt or reject
             log.info("Attempted EvtSend OK/abort: {}/{}, Evt KO: {}, Evt retries: {}", val(evtOK), val(evtAborted), val(evtKO), val(evtRetried)); //EvtSend attempt can be either OK or abort
-            log.info("Rate: " + rate + " [msgs/s]");
+            log.info("Rate: {} [msgs/s]", rate);
         }
     }
 
