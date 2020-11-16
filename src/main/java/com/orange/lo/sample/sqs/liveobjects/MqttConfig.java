@@ -71,7 +71,7 @@ public class MqttConfig {
     @Bean
     public IntegrationFlow mqttInFlow() {
         return IntegrationFlows.from(mqttInbound())
-                .handle(message -> mqttHandler.handleMessage((Message<String>) message))   //queuechannel instead of handle; another integrationflow running on that channel (with smart polling strategy)
+                .handle(message -> mqttHandler.handleMessage((Message<String>) message))
                 .get();
     }
 

@@ -35,7 +35,7 @@ public class MqttHandler {
     public MqttHandler(SqsSender sqsSender, Counters counterProvider, Queue<String> messageQueue) {
         LOG.info("MqttHandler init...");
         this.sqsSender = sqsSender;
-        mqttEvtCounter = counterProvider.mqttEvents();
+        this.mqttEvtCounter = counterProvider.mqttEvents();
         this.messageQueue = messageQueue;
     }
 

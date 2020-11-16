@@ -32,6 +32,7 @@ import java.util.Random;
 public class SqsClientConfig {
 
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final String MESSAGE_GROUP_ID = "messagegroup1";
     private Counters counters;
     private AmazonSQS sqs;
     private final String myQueueUrl;
@@ -40,12 +41,12 @@ public class SqsClientConfig {
 
     public SqsClientConfig(SqsProperties sqsProperties, Counters counters) {
         LOG.info("SqsClientProvider init...");
-        sqs = AmazonSQSClientBuilder.standard().withRegion("eu-central-1").build();
-        myQueueUrl = sqsProperties.getQueueUrl();
+        this.sqs = AmazonSQSClientBuilder.standard().withRegion("eu-central-1").build();
+        this.myQueueUrl = sqsProperties.getQueueUrl();
         this.counters = counters;
         BlockingQueue<Runnable> tasks = new ArrayBlockingQueue<>(sqsProperties.getTaskQueueSize());
-        tpe = new ThreadPoolExecutor(sqsProperties.getThreadPoolSize(), sqsProperties.getThreadPoolSize(), 10, TimeUnit.SECONDS, tasks);
-        random = new Random();
+        this.tpe = new ThreadPoolExecutor(sqsProperties.getThreadPoolSize(), sqsProperties.getThreadPoolSize(), 10, TimeUnit.SECONDS, tasks);
+        this.random = new Random();
     }
 
     @Bean
@@ -72,7 +73,7 @@ public class SqsClientConfig {
         try {//send a batch
             for (String message : batch) {
                 double deduplicationId = random.nextDouble();
-                entries.add(new SendMessageBatchRequestEntry(String.valueOf(i++), message).withMessageGroupId("messagegroup1").withMessageDeduplicationId(Double.toString(deduplicationId)));
+                entries.add(new SendMessageBatchRequestEntry(String.valueOf(i++), message).withMessageGroupId(MESSAGE_GROUP_ID).withMessageDeduplicationId(Double.toString(deduplicationId)));
             }
             SendMessageBatchRequest sendBatchRequest = new SendMessageBatchRequest()
                     .withQueueUrl(myQueueUrl)
@@ -81,19 +82,21 @@ public class SqsClientConfig {
             counters.evtSuccess().increment(sendBatchRequest.getEntries().size());
         } catch (final AmazonServiceException ase) {
             LOG.error("Caught an AmazonServiceException, which means " +
-                    "your request made it to Amazon SQS, but was " +
-                    "rejected with an error response for some reason.");
-            LOG.error("Error Message:    {}", ase.getMessage());
-            LOG.error("HTTP Status Code: {}", ase.getStatusCode());
-            LOG.error("AWS Error Code:   {}", ase.getErrorCode());
-            LOG.error("Error Type:       {}", ase.getErrorType());
-            LOG.error("Request ID:       {}", ase.getRequestId());
+                            "your request made it to Amazon SQS, but was " +
+                            "rejected with an error response for some reason.\n" +
+                            "Error Message:    {}\n" +
+                            "HTTP Status Code: {} \n" +
+                            "AWS Error Code:   {}\n" +
+                            "Error Type:       {}\n" +
+                            "Request ID:       {}",
+                    ase.getMessage(), ase.getStatusCode(), ase.getErrorCode(), ase.getErrorType(), ase.getRequestId());
         } catch (final AmazonClientException ace) {
             LOG.error("Caught an AmazonClientException, which means " +
-                    "the client encountered a serious internal problem while " +
-                    "trying to communicate with Amazon SQS, such as not " +
-                    "being able to access the network.");
-            LOG.error("Error Message: {}", ace.getMessage());
+                            "the client encountered a serious internal problem while " +
+                            "trying to communicate with Amazon SQS, such as not " +
+                            "being able to access the network.\n" +
+                            "Error Message: {}",
+                    ace.getMessage());
         }
     }
 
