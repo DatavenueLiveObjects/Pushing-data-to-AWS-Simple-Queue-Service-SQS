@@ -1,23 +1,28 @@
-/** 
-* Copyright (c) Orange. All Rights Reserved.
-* 
-* This source code is licensed under the MIT license found in the 
-* LICENSE file in the root directory of this source tree. 
-*/
+/**
+ * Copyright (c) Orange. All Rights Reserved.
+ * <p>
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 
-package com.orange.lo.sample.sqs;
+package com.orange.lo.sample.sqs.utils;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class Counters {
-    private Counter mqttRead, evtAttempt, evtOK, evtKO, evtAborted, evtRetried, evtRejected;
 
-    @Autowired
+    private Counter mqttRead;
+    private Counter evtAttempt;
+    private Counter evtOK;
+    private Counter evtKO;
+    private Counter evtAborted;
+    private Counter evtRetried;
+    private Counter evtRejected;
+
     public Counters(MeterRegistry registry) {
         mqttRead = registry.counter("mqtt-received");
         evtAttempt = registry.counter("evt-attempt");
