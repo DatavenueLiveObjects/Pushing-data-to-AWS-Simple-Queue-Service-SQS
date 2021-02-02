@@ -86,14 +86,12 @@ class SqsSenderTest {
         );
         CountDownLatch countDownLatch = new CountDownLatch(lists.size());
         for (List<String> list : lists) {
-
-            doAnswer(invocation -> {
-                countDownLatch.countDown();
-                return null;
-            }).when(amazonSQS).sendMessageBatch(any(SendMessageBatchRequest.class));
-
             sqsSender.send(list);
         }
+        doAnswer(invocation -> {
+            countDownLatch.countDown();
+            return null;
+        }).when(amazonSQS).sendMessageBatch(any(SendMessageBatchRequest.class));
         countDownLatch.await(5, TimeUnit.SECONDS);
 
         verify(amazonSQS, times(3)).sendMessageBatch(captor.capture());
