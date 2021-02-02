@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -29,9 +28,9 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class SqsSenderTest {
 
-    public static final int PART_BATCH_SIZE = 5;
+    private static final int FULL_BATCH_SIZE = 10;
+    private static final int PART_BATCH_SIZE = 5;
     private static final String message = "message";
-    public static final int FULL_BATCH_SIZE = 10;
 
     @Mock
     private AmazonSQS amazonSQS;
@@ -42,8 +41,11 @@ class SqsSenderTest {
     @Mock
     private Counter evtSuccess;
     @Captor
-    private ArgumentCaptor<SendMessageBatchRequest> captor;
+    private ArgumentCaptor<SendMessageBatchRequest> messageBatchRequestCaptor;
+    @Captor
+    private ArgumentCaptor<Double> successEventCaptor;
     private SqsSender sqsSender;
+    private ThreadPoolExecutor tpe;
 
     @BeforeEach
     void setUp() {
@@ -55,7 +57,7 @@ class SqsSenderTest {
         sqsProperties.setThreadPoolSize(20);
         sqsProperties.setTaskQueueSize(20);
         BlockingQueue<Runnable> tasks = new ArrayBlockingQueue<>(sqsProperties.getTaskQueueSize());
-        ThreadPoolExecutor tpe = new ThreadPoolExecutor(sqsProperties.getThreadPoolSize(),
+        this.tpe = new ThreadPoolExecutor(sqsProperties.getThreadPoolSize(),
                 sqsProperties.getThreadPoolSize(), 10, TimeUnit.SECONDS, tasks);
         this.sqsSender = new SqsSender(amazonSQS, sqsProperties, tpe, counters);
     }
@@ -63,14 +65,15 @@ class SqsSenderTest {
     @Test
     void shouldPassMessagesBatchToAmazonSQS() throws InterruptedException {
         List<String> messages = getMessages(PART_BATCH_SIZE);
-        sendMessagesBatch(messages);
 
-        verify(amazonSQS, times(1)).sendMessageBatch(captor.capture());
-        List<SendMessageBatchRequest> allValues = captor.getAllValues();
-        for (SendMessageBatchRequest batchRequest : allValues) {
-            List<SendMessageBatchRequestEntry> entries = batchRequest.getEntries();
-            assertEquals(messages.size(), entries.size());
-        }
+        sqsSender.send(messages);
+        tpe.awaitTermination(3, TimeUnit.SECONDS);
+
+        verify(amazonSQS, times(1)).sendMessageBatch(messageBatchRequestCaptor.capture());
+        List<String> messagesSent = toMessageBodyList(messageBatchRequestCaptor.getAllValues());
+        assertEquals(messages.size(), messagesSent.size());
+        assertTrue(messagesSent.containsAll(messages));
+
         verify(evtAttemptCounter, times(1)).increment();
         verify(evtSuccess, times(1)).increment(PART_BATCH_SIZE);
     }
@@ -82,35 +85,33 @@ class SqsSenderTest {
                 getMessages(FULL_BATCH_SIZE),
                 getMessages(PART_BATCH_SIZE)
         );
+
         for (List<String> list : lists) {
-            sendMessagesBatch(list);
+            sqsSender.send(list);
         }
+        tpe.awaitTermination(3, TimeUnit.SECONDS);
 
-        verify(amazonSQS, times(3)).sendMessageBatch(captor.capture());
-        List<SendMessageBatchRequest> allValues = captor.getAllValues();
-
-        for (int i = 0; i < allValues.size(); i++) {
-            SendMessageBatchRequest batchRequest = allValues.get(i);
-            List<String> strings = lists.get(i);
-            List<SendMessageBatchRequestEntry> entries = batchRequest.getEntries();
-            assertEquals(strings.size(), entries.size());
-        }
+        verify(amazonSQS, times(3)).sendMessageBatch(messageBatchRequestCaptor.capture());
+        List<String> messagesSent = toMessageBodyList(messageBatchRequestCaptor.getAllValues());
+        List<String> messages = lists.stream().flatMap(List::stream)
+                .collect(Collectors.toList());
+        assertEquals(messages.size(), messagesSent.size());
+        assertTrue(messagesSent.containsAll(messages));
 
         verify(evtAttemptCounter, times(3)).increment();
-        verify(evtSuccess, times(2)).increment(FULL_BATCH_SIZE);
-        verify(evtSuccess, times(1)).increment(PART_BATCH_SIZE);
+        verify(evtSuccess, times(3)).increment(successEventCaptor.capture());
+        Double successSum = successEventCaptor.getAllValues()
+                .stream()
+                .reduce(0.0, Double::sum);
+        assertEquals(messages.size(), successSum.intValue());
     }
 
-    private void sendMessagesBatch(List<String> messages) throws InterruptedException {
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-
-        doAnswer(invocation -> {
-            countDownLatch.countDown();
-            return null;
-        }).when(evtSuccess).increment(anyDouble());
-
-        sqsSender.send(messages);
-        countDownLatch.await(5, TimeUnit.SECONDS);
+    private List<String> toMessageBodyList(List<SendMessageBatchRequest> allValues) {
+        return allValues.stream()
+                .map(SendMessageBatchRequest::getEntries)
+                .flatMap(List::stream)
+                .map(SendMessageBatchRequestEntry::getMessageBody)
+                .collect(Collectors.toList());
     }
 
     private List<String> getMessages(int amount) {
