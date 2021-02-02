@@ -111,7 +111,7 @@ class SqsSenderTest {
         }).when(amazonSQS).sendMessageBatch(any(SendMessageBatchRequest.class));
 
         sqsSender.send(messages);
-        countDownLatch.await(5, TimeUnit.SECONDS);
+        countDownLatch.await();
     }
 
     private List<String> getMessages(int amount) {
