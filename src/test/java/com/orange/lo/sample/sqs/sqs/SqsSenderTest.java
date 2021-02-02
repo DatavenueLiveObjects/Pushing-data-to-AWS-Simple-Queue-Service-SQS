@@ -84,15 +84,9 @@ class SqsSenderTest {
                 getMessages(FULL_BATCH_SIZE),
                 getMessages(PART_BATCH_SIZE)
         );
-        CountDownLatch countDownLatch = new CountDownLatch(lists.size());
-        doAnswer(invocation -> {
-            countDownLatch.countDown();
-            return null;
-        }).when(amazonSQS).sendMessageBatch(any(SendMessageBatchRequest.class));
         for (List<String> list : lists) {
-            sqsSender.send(list);
+            sendMessagesBatch(list);
         }
-        countDownLatch.await(5, TimeUnit.SECONDS);
 
         verify(amazonSQS, times(3)).sendMessageBatch(captor.capture());
         List<SendMessageBatchRequest> allValues = captor.getAllValues();
@@ -103,6 +97,7 @@ class SqsSenderTest {
             List<SendMessageBatchRequestEntry> entries = batchRequest.getEntries();
             assertEquals(strings.size(), entries.size());
         }
+        Thread.sleep(5000);
         verify(evtAttemptCounter, times(3)).increment();
         verify(evtSuccess, times(2)).increment(FULL_BATCH_SIZE);
         verify(evtSuccess, times(1)).increment(PART_BATCH_SIZE);
