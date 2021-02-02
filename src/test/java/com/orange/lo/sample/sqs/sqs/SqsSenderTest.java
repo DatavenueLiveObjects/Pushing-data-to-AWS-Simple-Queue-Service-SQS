@@ -5,6 +5,7 @@ import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
 import com.orange.lo.sample.sqs.utils.Counters;
 import io.micrometer.core.instrument.Counter;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,10 +26,7 @@ import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SqsSenderTest {
@@ -118,5 +116,12 @@ class SqsSenderTest {
 
     private List<String> getMessages(int amount) {
         return IntStream.rangeClosed(1, amount).mapToObj(i -> message + i).collect(Collectors.toList());
+    }
+
+    @AfterEach
+    public void showInteractions() {
+        System.out.println(mockingDetails(evtSuccess).getInvocations());
+        System.out.println(mockingDetails(evtAttemptCounter).getInvocations());
+        System.out.println(mockingDetails(amazonSQS).getInvocations());
     }
 }
