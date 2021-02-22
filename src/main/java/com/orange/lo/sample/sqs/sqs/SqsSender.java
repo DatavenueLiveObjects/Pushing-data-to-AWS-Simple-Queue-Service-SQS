@@ -76,22 +76,23 @@ public class SqsSender {
             sqs.sendMessageBatch(sendBatchRequest);
             counters.evtSuccess().increment(sendBatchRequest.getEntries().size());
         } catch (final AmazonServiceException ase) {
-            LOG.error("Caught an AmazonServiceException, which means " +
-                            "your request made it to Amazon SQS, but was " +
-                            "rejected with an error response for some reason.\n" +
-                            "Error Message:    {}\n" +
-                            "HTTP Status Code: {} \n" +
-                            "AWS Error Code:   {}\n" +
-                            "Error Type:       {}\n" +
-                            "Request ID:       {}",
-                    ase.getMessage(), ase.getStatusCode(), ase.getErrorCode(), ase.getErrorType(), ase.getRequestId());
+            StringBuilder sb = new StringBuilder("Caught an AmazonServiceException, which means ")
+                    .append("your request made it to Amazon SQS, but was ")
+                    .append("rejected with an error response for some reason.\n")
+                    .append("Error Message:    {}\n")
+                    .append("HTTP Status Code: {} \n")
+                    .append("AWS Error Code:   {}\n")
+                    .append("Error Type:       {}\n")
+                    .append("Request ID:       {}");
+            LOG.error(sb.toString(), ase.getMessage(), ase.getStatusCode(), ase.getErrorCode(), ase.getErrorType(),
+                    ase.getRequestId());
         } catch (final AmazonClientException ace) {
-            LOG.error("Caught an AmazonClientException, which means " +
-                            "the client encountered a serious internal problem while " +
-                            "trying to communicate with Amazon SQS, such as not " +
-                            "being able to access the network.\n" +
-                            "Error Message: {}",
-                    ace.getMessage());
+            StringBuilder sb = new StringBuilder("Caught an AmazonClientException, which means ")
+                    .append("the client encountered a serious internal problem while ")
+                    .append("trying to communicate with Amazon SQS, such as not ")
+                    .append("being able to access the network.\n")
+                    .append("Error Message: {}");
+            LOG.error(sb.toString(), ace.getMessage());
         }
     }
 
