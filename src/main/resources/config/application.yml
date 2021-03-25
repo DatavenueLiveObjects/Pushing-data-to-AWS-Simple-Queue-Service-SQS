@@ -1,13 +1,12 @@
-lo-mqtt:
-  uri: ssl://liveobjects.orange-business.com:8883
-  username:
+lo:
+  hostname: liveobjects.orange-business.com
   api-key:
-  topic: fifo/dev
-  recovery-interval: 10000
-  completion-timeout: 20000
-  connection-timeout: 30000
-  qos: 1
+  topic:
+  synchronization-interval: 60000
+  message-qos: 1
+  mqtt-persistence-dir: ${basedir:.}/temp/
   keep-alive-interval-seconds: 30
+  connection-timeout: 30000
 
 aws:
   sqs:

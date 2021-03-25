@@ -1,50 +1,46 @@
-/** 
-* Copyright (c) Orange. All Rights Reserved.
-* 
-* This source code is licensed under the MIT license found in the 
-* LICENSE file in the root directory of this source tree. 
-*/
-
 package com.orange.lo.sample.sqs.liveobjects;
 
+
 import com.google.common.collect.Lists;
-import com.orange.lo.sample.sqs.utils.Counters;
 import com.orange.lo.sample.sqs.sqs.SqsSender;
-
-import io.micrometer.core.instrument.Counter;
-
+import com.orange.lo.sdk.LOApiClient;
+import com.orange.lo.sdk.fifomqtt.DataManagementFifo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.messaging.Message;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandles;
-
 import java.util.List;
 import java.util.Queue;
 
 @Component
-public class MqttHandler {
+public class LoService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private SqsSender sqsSender;
-    private Counter mqttEvtCounter;
-    private Queue<String> messageQueue;
 
-    public MqttHandler(SqsSender sqsSender, Counters counterProvider, Queue<String> messageQueue) {
-        LOG.info("MqttHandler init...");
+    private final SqsSender sqsSender;
+    private final Queue<String> messageQueue;
+    private final DataManagementFifo dataManagementFifo;
+
+    public LoService(LOApiClient loApiClient, SqsSender sqsSender, Queue<String> messageQueue) {
+        LOG.info("LoService init...");
+
         this.sqsSender = sqsSender;
-        this.mqttEvtCounter = counterProvider.mqttEvents();
         this.messageQueue = messageQueue;
+        this.dataManagementFifo = loApiClient.getDataManagementFifo();
+        ;
     }
 
-    public void handleMessage(Message<String> message) {
-        mqttEvtCounter.increment();
-        messageQueue.add(message.getPayload());
+    public void start() {
+        dataManagementFifo.connectAndSubscribe();
     }
 
-    @Scheduled(fixedDelay = 1000)
+    public void stop() {
+        dataManagementFifo.disconnect();
+    }
+
+    @Scheduled(fixedRateString = "${lo.synchronization-interval}")
     public void send() {
         if (!messageQueue.isEmpty()) {
             LOG.info("Start retriving messages...");
@@ -61,5 +57,4 @@ public class MqttHandler {
                 sqsSender.send(Lists.newArrayList(messageBatch));
         }
     }
-
 }
