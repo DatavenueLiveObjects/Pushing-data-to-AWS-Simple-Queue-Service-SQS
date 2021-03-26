@@ -8,24 +8,22 @@
 package com.orange.lo.sample.sqs.liveobjects;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 @Component
 @ConfigurationProperties(prefix = "lo")
 public class LoProperties {
 
-    private static final String DEFAULT_HOSTNAME = "liveobjects.orange-business.com";
-    private static final int DEFAULT_MESSAGE_QOS = 1;
-    private static final String DEFAULT_MQTT_PERSISTENCE_DIR = ".";
-
-    private String hostname = DEFAULT_HOSTNAME;
+    private String hostname;
     private String apiKey;
     private String topic;
-    private int messageQos = DEFAULT_MESSAGE_QOS;
-    private String mqttPersistenceDir = DEFAULT_MQTT_PERSISTENCE_DIR;
-    private int keepAliveIntervalSeconds;
-    private int connectionTimeout;
-    private int synchronizationInterval;
+    private Integer synchronizationInterval;
+    private Integer messageQos;
+    private String mqttPersistenceDir;
+    private Integer keepAliveIntervalSeconds;
+    private Integer connectionTimeout;
+    private Integer messageBatchSize;
 
     public String getHostname() {
         return hostname;
@@ -51,11 +49,19 @@ public class LoProperties {
         this.topic = topic;
     }
 
-    public int getMessageQos() {
+    public Integer getSynchronizationInterval() {
+        return synchronizationInterval;
+    }
+
+    public void setSynchronizationInterval(Integer synchronizationInterval) {
+        this.synchronizationInterval = synchronizationInterval;
+    }
+
+    public Integer getMessageQos() {
         return messageQos;
     }
 
-    public void setMessageQos(int messageQos) {
+    public void setMessageQos(Integer messageQos) {
         this.messageQos = messageQos;
     }
 
@@ -67,27 +73,27 @@ public class LoProperties {
         this.mqttPersistenceDir = mqttPersistenceDir;
     }
 
-    public int getKeepAliveIntervalSeconds() {
+    public Integer getKeepAliveIntervalSeconds() {
         return keepAliveIntervalSeconds;
     }
 
-    public void setKeepAliveIntervalSeconds(int keepAliveIntervalSeconds) {
+    public void setKeepAliveIntervalSeconds(Integer keepAliveIntervalSeconds) {
         this.keepAliveIntervalSeconds = keepAliveIntervalSeconds;
     }
 
-    public void setConnectionTimeout(int connectionTimeout) {
+    public void setConnectionTimeout(Integer connectionTimeout) {
         this.connectionTimeout = connectionTimeout;
     }
 
-    public int getConnectionTimeout() {
+    public Integer getConnectionTimeout() {
         return connectionTimeout;
     }
 
-    public int getSynchronizationInterval() {
-        return synchronizationInterval;
+    public Integer getMessageBatchSize() {
+        return messageBatchSize;
     }
 
-    public void setSynchronizationInterval(int synchronizationInterval) {
-        this.synchronizationInterval = synchronizationInterval;
+    public void setMessageBatchSize(Integer messageBatchSize) {
+        this.messageBatchSize = messageBatchSize;
     }
 }

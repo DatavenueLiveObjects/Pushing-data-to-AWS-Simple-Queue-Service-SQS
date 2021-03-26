@@ -1,0 +1,10 @@
+lo:
+  hostname: test-hostname
+  api-key: test-api-key
+  topic: test-topic
+  synchronization-interval: 123
+  message-qos: 234
+  mqtt-persistence-dir: /tmp/test
+  keep-alive-interval-seconds: 345
+  connection-timeout: 456
+  message-batch-size: 567

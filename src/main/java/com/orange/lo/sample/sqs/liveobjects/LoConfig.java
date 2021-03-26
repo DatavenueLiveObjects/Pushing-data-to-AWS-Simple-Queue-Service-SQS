@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Collections;
@@ -25,29 +26,52 @@ public class LoConfig {
 
     private final LoMqttHandler loMqttHandler;
 
-    public LoConfig(LoProperties loProperties, LoMqttHandler loMqttHandler) {
+    private final LOApiClientFactory loApiClientFactory;
+
+    public LoConfig(LoProperties loProperties, LoMqttHandler loMqttHandler, LOApiClientFactory loApiClientFactory) {
         this.loProperties = loProperties;
         this.loMqttHandler = loMqttHandler;
+        this.loApiClientFactory = loApiClientFactory;
     }
 
     @Bean
     public LOApiClient loApiClient() {
         LOGGER.debug("LoConfig init...");
-        LOApiClientParameters parameters = loApiClientParameters();
-        return new LOApiClient(parameters);
+        LOApiClientParameters parameters = getLoApiClientParameters();
+        return loApiClientFactory.createLOApiClient(parameters);
     }
 
-    private LOApiClientParameters loApiClientParameters() {
-        return LOApiClientParameters.builder()
-                .hostname(loProperties.getHostname())
+    private LOApiClientParameters getLoApiClientParameters() {
+        if (StringUtils.isEmpty(loProperties.getTopic())) {
+            throw new IllegalArgumentException("Topic is required");
+        }
+
+        LOApiClientParameters.LOApiClientParametersBuilder builder = LOApiClientParameters.builder()
                 .apiKey(loProperties.getApiKey())
-                .mqttPersistenceDataDir(loProperties.getMqttPersistenceDir())
-                .dataManagementMqttCallback(loMqttHandler)
                 .topics(Collections.singletonList(loProperties.getTopic()))
-                .keepAliveIntervalSeconds(loProperties.getKeepAliveIntervalSeconds())
-                .connectionTimeout(loProperties.getConnectionTimeout())
-                .messageQos(loProperties.getMessageQos())
-                .automaticReconnect(true)
-                .build();
+                .dataManagementMqttCallback(loMqttHandler)
+                .automaticReconnect(true);
+
+        if ( !StringUtils.isEmpty(loProperties.getHostname()) ) {
+                builder.hostname(loProperties.getHostname());
+        }
+
+        if ( !StringUtils.isEmpty(loProperties.getMqttPersistenceDir()) ) {
+            builder.mqttPersistenceDataDir(loProperties.getMqttPersistenceDir());
+        }
+
+        if ( loProperties.getMessageQos() != null ) {
+            builder.messageQos(loProperties.getMessageQos());
+        }
+
+        if ( loProperties.getKeepAliveIntervalSeconds() != null ) {
+            builder.keepAliveIntervalSeconds(loProperties.getKeepAliveIntervalSeconds());
+        }
+
+        if ( loProperties.getConnectionTimeout() != null ) {
+            builder.connectionTimeout(loProperties.getConnectionTimeout());
+        }
+
+        return builder.build();
     }
 }

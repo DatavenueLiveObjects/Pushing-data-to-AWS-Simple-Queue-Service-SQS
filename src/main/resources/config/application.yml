@@ -7,6 +7,7 @@ lo:
   mqtt-persistence-dir: ${basedir:.}/temp/
   keep-alive-interval-seconds: 30
   connection-timeout: 30000
+  message-batch-size: 10
 
 aws:
   sqs:

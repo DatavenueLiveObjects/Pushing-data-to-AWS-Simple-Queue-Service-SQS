@@ -22,14 +22,16 @@ public class LoService {
     private final SqsSender sqsSender;
     private final Queue<String> messageQueue;
     private final DataManagementFifo dataManagementFifo;
+    private final LoProperties loProperties;
+    private final int DEFAULT_BATCH_SIZE = 10;
 
-    public LoService(LOApiClient loApiClient, SqsSender sqsSender, Queue<String> messageQueue) {
+    public LoService(LOApiClient loApiClient, SqsSender sqsSender, Queue<String> messageQueue, LoProperties loProperties) {
         LOG.info("LoService init...");
 
         this.sqsSender = sqsSender;
         this.messageQueue = messageQueue;
         this.dataManagementFifo = loApiClient.getDataManagementFifo();
-        ;
+        this.loProperties = loProperties;
     }
 
     public void start() {
@@ -44,10 +46,13 @@ public class LoService {
     public void send() {
         if (!messageQueue.isEmpty()) {
             LOG.info("Start retriving messages...");
-            List<String> messageBatch = Lists.newArrayListWithCapacity(10);
+
+            int batchSize = loProperties.getMessageBatchSize() != null ? loProperties.getMessageBatchSize() : DEFAULT_BATCH_SIZE;
+
+            List<String> messageBatch = Lists.newArrayListWithCapacity(batchSize);
             while (!messageQueue.isEmpty()) {
                 messageBatch.add(messageQueue.poll());
-                if (messageBatch.size() == 10) {
+                if (messageBatch.size() == batchSize) {
                     sqsSender.send(Lists.newArrayList(messageBatch));
                     messageBatch.clear();
                 }
