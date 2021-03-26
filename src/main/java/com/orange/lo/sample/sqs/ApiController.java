@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-package com.orange.lo.sample.sqs.sqs;
+package com.orange.lo.sample.sqs;
 
 import com.orange.lo.sample.sqs.liveobjects.LoService;
 import org.slf4j.Logger;
