@@ -17,6 +17,7 @@ class SqsClientConfigTest {
         SqsProperties sqsProperties = new SqsProperties();
         sqsProperties.setThreadPoolSize(20);
         sqsProperties.setTaskQueueSize(20);
+        sqsProperties.setRegion("test-region");
         sqsClientConfig = new SqsClientConfig(sqsProperties);
     }
 

@@ -26,7 +26,7 @@ public class SqsClientConfig {
     private final SqsProperties sqsProperties;
 
     public SqsClientConfig(SqsProperties sqsProperties) {
-        LOG.info("SqsClientProvider init...");
+        LOG.info("SqsClientConfig init...");
         this.sqsProperties = sqsProperties;
     }
 

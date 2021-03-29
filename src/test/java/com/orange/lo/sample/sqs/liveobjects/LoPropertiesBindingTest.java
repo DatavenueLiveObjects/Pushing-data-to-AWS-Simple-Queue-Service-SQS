@@ -24,12 +24,12 @@ class LoPropertiesBindingTest {
         Assertions.assertEquals("test-hostname", loProperties.getHostname());
         Assertions.assertEquals("test-api-key", loProperties.getApiKey());
         Assertions.assertEquals("test-topic", loProperties.getTopic());
-        Assertions.assertEquals(123, (int) loProperties.getSynchronizationInterval());
-        Assertions.assertEquals(234, (int) loProperties.getMessageQos());
+        Assertions.assertEquals(123, loProperties.getSynchronizationInterval());
+        Assertions.assertEquals(234, loProperties.getMessageQos());
         Assertions.assertEquals("/tmp/test", loProperties.getMqttPersistenceDir());
-        Assertions.assertEquals(345, (int) loProperties.getKeepAliveIntervalSeconds());
-        Assertions.assertEquals(456, (int) loProperties.getConnectionTimeout());
-        Assertions.assertEquals(567, (int) loProperties.getMessageBatchSize());
+        Assertions.assertEquals(345, loProperties.getKeepAliveIntervalSeconds());
+        Assertions.assertEquals(456, loProperties.getConnectionTimeout());
+        Assertions.assertEquals(567, loProperties.getMessageBatchSize());
     }
 
 }

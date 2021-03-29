@@ -8,3 +8,14 @@ lo:
   keep-alive-interval-seconds: 345
   connection-timeout: 456
   message-batch-size: 567
+
+aws:
+  sqs:
+    queue-url: test-queue-url
+    thread-pool-size: 123
+    connection-timeout: 234
+    task-queue-size: 345
+    throttling-delay: 456
+    max-send-attempts: 567
+    message-group-id: test-message-group
+    region: test-region

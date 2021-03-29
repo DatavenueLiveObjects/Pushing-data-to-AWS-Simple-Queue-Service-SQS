@@ -1,9 +1,9 @@
-/** 
-* Copyright (c) Orange, Inc. and its affiliates. All Rights Reserved. 
-* 
-* This source code is licensed under the MIT license found in the 
-* LICENSE file in the root directory of this source tree. 
-*/
+/**
+ * Copyright (c) Orange, Inc. and its affiliates. All Rights Reserved.
+ * <p>
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 
 package com.orange.lo.sample.sqs.sqs;
 
@@ -15,11 +15,13 @@ import org.springframework.stereotype.Component;
 public class SqsProperties {
 
     private String queueUrl;
-    private int threadPoolSize;
-    private long connectionTimeout;
-    private int taskQueueSize;
-    private long throttlingDelay;
-    private int maxSendAttempts;
+    private Integer threadPoolSize;
+    private Long connectionTimeout;
+    private Integer taskQueueSize;
+    private Long throttlingDelay;
+    private Integer maxSendAttempts;
+    private String messageGroupId;
+    private String region;
 
     public String getQueueUrl() {
         return queueUrl;
@@ -29,44 +31,59 @@ public class SqsProperties {
         this.queueUrl = queueUrl;
     }
 
-    public int getThreadPoolSize() {
+    public Integer getThreadPoolSize() {
         return threadPoolSize;
     }
 
-    public void setThreadPoolSize(int threadPoolSize) {
+    public void setThreadPoolSize(Integer threadPoolSize) {
         this.threadPoolSize = threadPoolSize;
     }
 
-    public long getConnectionTimeout() {
+    public Long getConnectionTimeout() {
         return connectionTimeout;
     }
 
-    public void setConnectionTimeout(long connectionTimeout) {
+    public void setConnectionTimeout(Long connectionTimeout) {
         this.connectionTimeout = connectionTimeout;
     }
 
-    public int getTaskQueueSize() {
+    public Integer getTaskQueueSize() {
         return taskQueueSize;
     }
 
-    public void setTaskQueueSize(int taskQueueSize) {
+    public void setTaskQueueSize(Integer taskQueueSize) {
         this.taskQueueSize = taskQueueSize;
     }
 
-    public long getThrottlingDelay() {
+    public Long getThrottlingDelay() {
         return throttlingDelay;
     }
 
-    public void setThrottlingDelay(long throttlingDelay) {
+    public void setThrottlingDelay(Long throttlingDelay) {
         this.throttlingDelay = throttlingDelay;
     }
 
-    public int getMaxSendAttempts() {
+    public Integer getMaxSendAttempts() {
         return maxSendAttempts;
     }
 
-    public void setMaxSendAttempts(int maxSendAttempts) {
+    public void setMaxSendAttempts(Integer maxSendAttempts) {
         this.maxSendAttempts = maxSendAttempts;
     }
 
+    public String getMessageGroupId() {
+        return messageGroupId;
+    }
+
+    public void setMessageGroupId(String messageGroupId) {
+        this.messageGroupId = messageGroupId;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
 }

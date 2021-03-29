@@ -32,8 +32,7 @@ import java.util.stream.Collectors;
 public class SqsSender {
 
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private static final String MESSAGE_GROUP_ID = "messagegroup1";
-    private final String myQueueUrl;
+    private final SqsProperties sqsProperties;
     private final AmazonSQS sqs;
     private final Counters counters;
     private final ThreadPoolExecutor tpe;
@@ -41,7 +40,7 @@ public class SqsSender {
 
     public SqsSender(AmazonSQS amazonSQ, SqsProperties sqsProperties, ThreadPoolExecutor tpe, Counters counters) {
         this.sqs = amazonSQ;
-        this.myQueueUrl = sqsProperties.getQueueUrl();
+        this.sqsProperties = sqsProperties;
         this.random = new Random();
         this.tpe = tpe;
         this.counters = counters;
@@ -71,7 +70,7 @@ public class SqsSender {
                     .collect(Collectors.toList());
 
             SendMessageBatchRequest sendBatchRequest = new SendMessageBatchRequest()
-                    .withQueueUrl(myQueueUrl)
+                    .withQueueUrl(sqsProperties.getQueueUrl())
                     .withEntries(entries);
             sqs.sendMessageBatch(sendBatchRequest);
             counters.evtSuccess().increment(sendBatchRequest.getEntries().size());
@@ -98,7 +97,7 @@ public class SqsSender {
 
     private SendMessageBatchRequestEntry toSendMessageBatchRequestEntry(int id, String message, double deduplicationId) {
         return new SendMessageBatchRequestEntry(String.valueOf(id), message)
-                .withMessageGroupId(MESSAGE_GROUP_ID)
+                .withMessageGroupId(sqsProperties.getMessageGroupId())
                 .withMessageDeduplicationId(Double.toString(deduplicationId));
     }
 
