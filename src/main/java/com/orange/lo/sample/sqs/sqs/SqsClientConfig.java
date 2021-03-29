@@ -9,15 +9,16 @@ package com.orange.lo.sample.sqs.sqs;
 
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.lang.invoke.MethodHandles;
-import java.util.concurrent.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class SqsClientConfig {
@@ -32,7 +33,7 @@ public class SqsClientConfig {
 
     @Bean
     public AmazonSQS amazonSQS() {
-        return AmazonSQSClientBuilder.standard().withRegion("eu-central-1").build();
+        return AmazonSQSClientBuilder.standard().withRegion(sqsProperties.getRegion()).build();
     }
 
     @Bean

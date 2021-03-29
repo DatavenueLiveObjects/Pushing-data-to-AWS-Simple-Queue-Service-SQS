@@ -8,9 +8,11 @@
 package com.orange.lo.sample.sqs.sqs;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.ConstructorBinding;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConstructorBinding
 @ConfigurationProperties(prefix = "aws.sqs")
 public class SqsProperties {
 
@@ -23,67 +25,55 @@ public class SqsProperties {
     private String messageGroupId;
     private String region;
 
-    public String getQueueUrl() {
-        return queueUrl;
+    public SqsProperties(
+            String queueUrl,
+            Integer threadPoolSize,
+            Long connectionTimeout,
+            Integer taskQueueSize,
+            Long throttlingDelay,
+            Integer maxSendAttempts,
+            String messageGroupId,
+            String region
+    ) {
+        this.queueUrl = queueUrl;
+        this.threadPoolSize = threadPoolSize;
+        this.connectionTimeout = connectionTimeout;
+        this.taskQueueSize = taskQueueSize;
+        this.throttlingDelay = throttlingDelay;
+        this.maxSendAttempts = maxSendAttempts;
+        this.messageGroupId = messageGroupId;
+        this.region = region;
     }
 
-    public void setQueueUrl(String queueUrl) {
-        this.queueUrl = queueUrl;
+    public String getQueueUrl() {
+        return queueUrl;
     }
 
     public Integer getThreadPoolSize() {
         return threadPoolSize;
     }
 
-    public void setThreadPoolSize(Integer threadPoolSize) {
-        this.threadPoolSize = threadPoolSize;
-    }
-
     public Long getConnectionTimeout() {
         return connectionTimeout;
-    }
-
-    public void setConnectionTimeout(Long connectionTimeout) {
-        this.connectionTimeout = connectionTimeout;
     }
 
     public Integer getTaskQueueSize() {
         return taskQueueSize;
     }
 
-    public void setTaskQueueSize(Integer taskQueueSize) {
-        this.taskQueueSize = taskQueueSize;
-    }
-
     public Long getThrottlingDelay() {
         return throttlingDelay;
-    }
-
-    public void setThrottlingDelay(Long throttlingDelay) {
-        this.throttlingDelay = throttlingDelay;
     }
 
     public Integer getMaxSendAttempts() {
         return maxSendAttempts;
     }
 
-    public void setMaxSendAttempts(Integer maxSendAttempts) {
-        this.maxSendAttempts = maxSendAttempts;
-    }
-
     public String getMessageGroupId() {
         return messageGroupId;
     }
 
-    public void setMessageGroupId(String messageGroupId) {
-        this.messageGroupId = messageGroupId;
-    }
-
     public String getRegion() {
         return region;
-    }
-
-    public void setRegion(String region) {
-        this.region = region;
     }
 }

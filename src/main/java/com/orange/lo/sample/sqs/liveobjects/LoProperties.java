@@ -8,81 +8,72 @@
 package com.orange.lo.sample.sqs.liveobjects;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.context.properties.ConstructorBinding;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConstructorBinding
 @ConfigurationProperties(prefix = "lo")
 public class LoProperties {
 
-    private String hostname;
-    private String apiKey;
-    private String topic;
-    private Integer synchronizationInterval;
-    private Integer messageQos;
-    private String mqttPersistenceDir;
-    private Integer keepAliveIntervalSeconds;
-    private Integer connectionTimeout;
-    private Integer messageBatchSize;
+    private final String hostname;
+    private final String apiKey;
+    private final String topic;
+    private final Integer synchronizationInterval;
+    private final Integer messageQos;
+    private final String mqttPersistenceDir;
+    private final Integer keepAliveIntervalSeconds;
+    private final Integer connectionTimeout;
+    private final Integer messageBatchSize;
+
+    public LoProperties(
+            String hostname,
+            String apiKey,
+            String topic,
+            Integer synchronizationInterval,
+            Integer messageQos,
+            String mqttPersistenceDir,
+            Integer keepAliveIntervalSeconds,
+            Integer connectionTimeout,
+            Integer messageBatchSize
+    ) {
+        this.hostname = hostname;
+        this.apiKey = apiKey;
+        this.topic = topic;
+        this.synchronizationInterval = synchronizationInterval;
+        this.messageQos = messageQos;
+        this.mqttPersistenceDir = mqttPersistenceDir;
+        this.keepAliveIntervalSeconds = keepAliveIntervalSeconds;
+        this.connectionTimeout = connectionTimeout;
+        this.messageBatchSize = messageBatchSize;
+    }
 
     public String getHostname() {
         return hostname;
-    }
-
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
     }
 
     public String getApiKey() {
         return apiKey;
     }
 
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
-    }
-
     public String getTopic() {
         return topic;
-    }
-
-    public void setTopic(String topic) {
-        this.topic = topic;
     }
 
     public Integer getSynchronizationInterval() {
         return synchronizationInterval;
     }
 
-    public void setSynchronizationInterval(Integer synchronizationInterval) {
-        this.synchronizationInterval = synchronizationInterval;
-    }
-
     public Integer getMessageQos() {
         return messageQos;
-    }
-
-    public void setMessageQos(Integer messageQos) {
-        this.messageQos = messageQos;
     }
 
     public String getMqttPersistenceDir() {
         return mqttPersistenceDir;
     }
 
-    public void setMqttPersistenceDir(String mqttPersistenceDir) {
-        this.mqttPersistenceDir = mqttPersistenceDir;
-    }
-
     public Integer getKeepAliveIntervalSeconds() {
         return keepAliveIntervalSeconds;
-    }
-
-    public void setKeepAliveIntervalSeconds(Integer keepAliveIntervalSeconds) {
-        this.keepAliveIntervalSeconds = keepAliveIntervalSeconds;
-    }
-
-    public void setConnectionTimeout(Integer connectionTimeout) {
-        this.connectionTimeout = connectionTimeout;
     }
 
     public Integer getConnectionTimeout() {
@@ -91,9 +82,5 @@ public class LoProperties {
 
     public Integer getMessageBatchSize() {
         return messageBatchSize;
-    }
-
-    public void setMessageBatchSize(Integer messageBatchSize) {
-        this.messageBatchSize = messageBatchSize;
     }
 }

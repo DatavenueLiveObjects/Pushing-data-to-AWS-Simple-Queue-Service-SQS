@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.mockito.AdditionalMatchers.*;
+import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -29,6 +29,9 @@ class LoServiceTest {
     @Mock
     DataManagementFifo dataManagementFifo;
 
+    @Mock
+    private LoProperties properties;
+
     private LinkedList<String> messageQueue;
 
     private LoService service;
@@ -38,7 +41,7 @@ class LoServiceTest {
     void setUp() {
         when(loApiClient.getDataManagementFifo()).thenReturn(dataManagementFifo);
         messageQueue = new LinkedList<>();
-        service = new LoService(loApiClient, sqsSender, messageQueue, new LoProperties());
+        service = new LoService(loApiClient, sqsSender, messageQueue, properties);
     }
 
     @Test
@@ -73,8 +76,7 @@ class LoServiceTest {
         // given
         int batchSize = 5;
 
-        LoProperties properties = new LoProperties();
-        properties.setMessageBatchSize(batchSize);
+        when(properties.getMessageBatchSize()).thenReturn(batchSize);
         service = new LoService(loApiClient, sqsSender, messageQueue, properties);
 
         for (int i = 0; i < batchSize; i++) {
@@ -95,8 +97,7 @@ class LoServiceTest {
         int batchSize = 5;
         int totalLength = batchSize + 1;
 
-        LoProperties properties = new LoProperties();
-        properties.setMessageBatchSize(batchSize);
+        when(properties.getMessageBatchSize()).thenReturn(batchSize);
         service = new LoService(loApiClient, sqsSender, messageQueue, properties);
 
         for (int i = 0; i < totalLength; i++) {

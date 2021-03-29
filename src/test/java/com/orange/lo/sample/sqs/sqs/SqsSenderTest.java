@@ -22,7 +22,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,16 +36,25 @@ class SqsSenderTest {
 
     @Mock
     private AmazonSQS amazonSQS;
+
     @Mock
     private Counters counters;
+
     @Mock
     private Counter evtAttemptCounter;
+
     @Mock
     private Counter evtSuccess;
+
+    @Mock
+    private SqsProperties sqsProperties;
+
     @Captor
     private ArgumentCaptor<SendMessageBatchRequest> messageBatchRequestCaptor;
+
     @Captor
     private ArgumentCaptor<Double> successEventCaptor;
+
     private SqsSender sqsSender;
     private ThreadPoolExecutor tpe;
 
@@ -53,10 +63,9 @@ class SqsSenderTest {
         when(counters.evtAttemptCount()).thenReturn(evtAttemptCounter);
         when(counters.evtSuccess()).thenReturn(evtSuccess);
 
-        SqsProperties sqsProperties = new SqsProperties();
-        sqsProperties.setQueueUrl("queueUrl");
-        sqsProperties.setThreadPoolSize(20);
-        sqsProperties.setTaskQueueSize(20);
+        when(sqsProperties.getQueueUrl()).thenReturn("queueUrl");
+        when(sqsProperties.getThreadPoolSize()).thenReturn(20);
+        when(sqsProperties.getTaskQueueSize()).thenReturn(20);
         BlockingQueue<Runnable> tasks = new ArrayBlockingQueue<>(sqsProperties.getTaskQueueSize());
         this.tpe = new ThreadPoolExecutor(sqsProperties.getThreadPoolSize(),
                 sqsProperties.getThreadPoolSize(), 10, TimeUnit.SECONDS, tasks);

@@ -12,6 +12,7 @@ import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class LoConfigTest {
@@ -24,6 +25,9 @@ class LoConfigTest {
 
     @Mock
     private LOApiClientFactory loApiClientFactory;
+
+    @Mock
+    private LoProperties properties;
 
     @Captor
     private ArgumentCaptor<LOApiClientParameters> clientParametersCaptor;
@@ -53,9 +57,6 @@ class LoConfigTest {
     @Test
     void shouldThrowExceptionOnLoApiClientIfPropertiesHasNoTopic() {
         // given
-        LoProperties properties = new LoProperties();
-        properties.setApiKey(API_KEY);
-
         LoConfig loConfig = new LoConfig(properties, loMqttHandler, loApiClientFactory);
 
         // when / then
@@ -86,22 +87,25 @@ class LoConfigTest {
     }
 
     private LoProperties getMinimumLoProperties() {
-        LoProperties properties = new LoProperties();
-        properties.setApiKey(API_KEY);
-        properties.setTopic(TOPIC);
+        when(properties.getApiKey()).thenReturn(API_KEY);
+        when(properties.getTopic()).thenReturn(TOPIC);
+
+        when(properties.getMessageQos()).thenReturn(null);
+        when(properties.getKeepAliveIntervalSeconds()).thenReturn(null);
+        when(properties.getConnectionTimeout()).thenReturn(null);
+
         return properties;
     }
 
     private LoProperties getCustomizedLoProperties() {
-        LoProperties properties = new LoProperties();
-        properties.setApiKey(API_KEY);
-        properties.setTopic(TOPIC);
+        when(properties.getApiKey()).thenReturn(API_KEY);
+        when(properties.getTopic()).thenReturn(TOPIC);
 
-        properties.setHostname("custom.hostname");
-        properties.setMqttPersistenceDir("/tmp");
-        properties.setMessageQos(-1);
-        properties.setKeepAliveIntervalSeconds(123);
-        properties.setConnectionTimeout(321);
+        when(properties.getHostname()).thenReturn("custom.hostname");
+        when(properties.getMqttPersistenceDir()).thenReturn("/tmp");
+        when(properties.getMessageQos()).thenReturn(-1);
+        when(properties.getKeepAliveIntervalSeconds()).thenReturn(123);
+        when(properties.getConnectionTimeout()).thenReturn(321);
 
         return properties;
     }
