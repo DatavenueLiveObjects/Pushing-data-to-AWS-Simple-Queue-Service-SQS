@@ -45,8 +45,7 @@ public class SqsClientConfig {
         return new ThreadPoolExecutor(
                 sqsProperties.getThreadPoolSize(),
                 sqsProperties.getThreadPoolSize(),
-                // TODO: keepAliveTime
-                10,
+                sqsProperties.getKeepAliveTime(),
                 TimeUnit.SECONDS, tasks
         );
     }

@@ -22,6 +22,7 @@ public class SqsProperties {
     private Integer maxSendAttempts;
     private String messageGroupId;
     private String region;
+    private Long keepAliveTime;
 
     public SqsProperties(
             String queueUrl,
@@ -31,7 +32,8 @@ public class SqsProperties {
             Long throttlingDelay,
             Integer maxSendAttempts,
             String messageGroupId,
-            String region
+            String region,
+            Long keepAliveTime
     ) {
         this.queueUrl = queueUrl;
         this.threadPoolSize = threadPoolSize;
@@ -41,6 +43,7 @@ public class SqsProperties {
         this.maxSendAttempts = maxSendAttempts;
         this.messageGroupId = messageGroupId;
         this.region = region;
+        this.keepAliveTime = keepAliveTime;
     }
 
     public String getQueueUrl() {
@@ -73,5 +76,9 @@ public class SqsProperties {
 
     public String getRegion() {
         return region;
+    }
+
+    public Long getKeepAliveTime() {
+        return keepAliveTime;
     }
 }

@@ -19,6 +19,7 @@ aws:
     max-send-attempts: 567
     message-group-id: test-message-group
     region: test-region
+    keep-alive-time: 678
 
 cloud:
   aws:

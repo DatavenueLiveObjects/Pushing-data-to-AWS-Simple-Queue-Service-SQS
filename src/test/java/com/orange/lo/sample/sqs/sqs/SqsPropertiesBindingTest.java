@@ -29,6 +29,7 @@ class SqsPropertiesBindingTest {
         Assertions.assertEquals(567, sqsProperties.getMaxSendAttempts());
         Assertions.assertEquals("test-message-group", sqsProperties.getMessageGroupId());
         Assertions.assertEquals("test-region", sqsProperties.getRegion());
+        Assertions.assertEquals(678, sqsProperties.getKeepAliveTime());
     }
 
 }

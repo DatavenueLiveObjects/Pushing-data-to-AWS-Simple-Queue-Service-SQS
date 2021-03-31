@@ -12,6 +12,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.eq;
@@ -32,15 +34,16 @@ class LoServiceTest {
     @Mock
     private LoProperties properties;
 
-    private LinkedList<String> messageQueue;
-
     private LoService service;
 
 
     @BeforeEach
     void setUp() {
         when(loApiClient.getDataManagementFifo()).thenReturn(dataManagementFifo);
-        messageQueue = new LinkedList<>();
+        prepareService(new LinkedList<>());
+    }
+
+    private void prepareService(LinkedList<String> messageQueue) {
         service = new LoService(loApiClient, sqsSender, messageQueue, properties);
     }
 
@@ -77,12 +80,11 @@ class LoServiceTest {
         int batchSize = 5;
 
         when(properties.getMessageBatchSize()).thenReturn(batchSize);
-        service = new LoService(loApiClient, sqsSender, messageQueue, properties);
 
-        // TODO: Replace with stream
-        for (int i = 0; i < batchSize; i++) {
-            messageQueue.push(String.format("Message %d", i + 1));
-        }
+        LinkedList<String> messageQueue = getExampleMessageQueue(batchSize);
+
+        prepareService(messageQueue);
+
         List<String> expectedMessages = new ArrayList<>(messageQueue);
 
         // when
@@ -99,12 +101,11 @@ class LoServiceTest {
         int totalLength = batchSize + 1;
 
         when(properties.getMessageBatchSize()).thenReturn(batchSize);
-        service = new LoService(loApiClient, sqsSender, messageQueue, properties);
 
-        // TODO: Replace with stream
-        for (int i = 0; i < totalLength; i++) {
-            messageQueue.push(String.format("Message %d", i + 1));
-        }
+        LinkedList<String> messageQueue = getExampleMessageQueue(totalLength);
+
+        prepareService(messageQueue);
+
         List<String> expectedMessages1 = (new LinkedList<>(messageQueue)).subList(0, batchSize);
         List<String> expectedMessages2 = (new LinkedList<>(messageQueue)).subList(batchSize, totalLength);
 
@@ -121,10 +122,10 @@ class LoServiceTest {
         // given
         int expectedBatchSize = 10;
 
-        // TODO: Replace with stream
-        for (int i = 0; i < expectedBatchSize; i++) {
-            messageQueue.push(String.format("Message %d", i + 1));
-        }
+        LinkedList<String> messageQueue = getExampleMessageQueue(expectedBatchSize);
+
+        prepareService(messageQueue);
+
         List<String> expectedMessages = (new LinkedList<>(messageQueue)).subList(0, expectedBatchSize);
 
         // when
@@ -133,5 +134,11 @@ class LoServiceTest {
         // then
         verify(sqsSender, times(1)).send(expectedMessages);
         verify(sqsSender, never()).send(not(eq(expectedMessages)));
+    }
+
+    private LinkedList<String> getExampleMessageQueue(int batchSize) {
+        return IntStream.range(1, batchSize + 1)
+                .mapToObj(i -> String.format("Message %d", i))
+                .collect(Collectors.toCollection(LinkedList::new));
     }
 }
