@@ -18,8 +18,3 @@ aws:
     throttling-delay: 5000
     max-send-attempts: 3
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: info, health, metrics, beans

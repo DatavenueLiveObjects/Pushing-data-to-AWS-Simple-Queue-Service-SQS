@@ -79,6 +79,7 @@ class LoServiceTest {
         when(properties.getMessageBatchSize()).thenReturn(batchSize);
         service = new LoService(loApiClient, sqsSender, messageQueue, properties);
 
+        // TODO: Replace with stream
         for (int i = 0; i < batchSize; i++) {
             messageQueue.push(String.format("Message %d", i + 1));
         }
@@ -100,6 +101,7 @@ class LoServiceTest {
         when(properties.getMessageBatchSize()).thenReturn(batchSize);
         service = new LoService(loApiClient, sqsSender, messageQueue, properties);
 
+        // TODO: Replace with stream
         for (int i = 0; i < totalLength; i++) {
             messageQueue.push(String.format("Message %d", i + 1));
         }
@@ -119,6 +121,7 @@ class LoServiceTest {
         // given
         int expectedBatchSize = 10;
 
+        // TODO: Replace with stream
         for (int i = 0; i < expectedBatchSize; i++) {
             messageQueue.push(String.format("Message %d", i + 1));
         }

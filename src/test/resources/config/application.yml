@@ -19,3 +19,10 @@ aws:
     max-send-attempts: 567
     message-group-id: test-message-group
     region: test-region
+
+cloud:
+  aws:
+    region:
+      static: us-east-1
+    stack:
+      auto: false

@@ -9,9 +9,7 @@ package com.orange.lo.sample.sqs.liveobjects;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConstructorBinding;
-import org.springframework.stereotype.Component;
 
-@Component
 @ConstructorBinding
 @ConfigurationProperties(prefix = "lo")
 public class LoProperties {
