@@ -21,3 +21,7 @@ aws:
     region: eu-central-1
     keep-alive-time: 10
 
+cloud:
+  aws:
+    stack:
+      auto: false
