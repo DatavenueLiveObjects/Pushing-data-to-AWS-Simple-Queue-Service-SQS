@@ -17,4 +17,7 @@ aws:
     task-queue-size: 150000
     throttling-delay: 5000
     max-send-attempts: 3
+    message-group-id: messagegroup1
+    region: eu-central-1
+    keep-alive-time: 10
 
