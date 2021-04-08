@@ -12,7 +12,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @EnableConfigurationProperties(LoProperties.class)
-@TestPropertySource(value = "classpath:config/application.yml")
+@TestPropertySource(value = "classpath:application.yml")
 @ContextConfiguration(initializers = ConfigFileApplicationContextInitializer.class)
 class LoPropertiesBindingTest {
 
