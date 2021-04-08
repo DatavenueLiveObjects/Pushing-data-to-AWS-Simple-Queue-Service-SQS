@@ -11,7 +11,7 @@
   * [Live objects side](#live-objects-side)
     * [Generate Live Objects API key](#generate-live-objects-api-key)
   * [AWS Side](#aws-side)
-    * [Create AWS Access keys](#create-aws-access-keys)
+    * [Create AWS Access key](#create-aws-access-key)
     * [Use AWS Access keys](#use-aws-access-keys)
     * [Create AWS SQS queue](#create-aws-sqs-queue)
   * [Connector side](#connector-side)
