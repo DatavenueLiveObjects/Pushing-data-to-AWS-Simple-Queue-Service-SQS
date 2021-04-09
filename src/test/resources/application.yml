@@ -1,0 +1,29 @@
+lo:
+  hostname: test-hostname
+  api-key: test-api-key
+  topic: test-topic
+  synchronization-interval: 123
+  message-qos: 234
+  mqtt-persistence-dir: /tmp/test
+  keep-alive-interval-seconds: 345
+  connection-timeout: 456
+  message-batch-size: 567
+
+aws:
+  sqs:
+    queue-url: test-queue-url
+    thread-pool-size: 123
+    connection-timeout: 234
+    task-queue-size: 345
+    throttling-delay: 456
+    max-send-attempts: 567
+    message-group-id: test-message-group
+    region: test-region
+    keep-alive-time: 678
+
+cloud:
+  aws:
+    region:
+      static: eu-central-1
+    stack:
+      auto: false
