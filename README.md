@@ -6,7 +6,8 @@
   * [Performance and scalability](#performance-and-scalability)
 * [Technologies](#technologies)
 * [Requirements](#requirements)
-* [Building and installation](#building-and-installation)
+* [Getting the installation package](#getting-the-installation-package)
+* [Installation](#installation)
 * [Configuration](#configuration)
   * [Live objects side](#live-objects-side)
     * [Generate Live Objects API key](#generate-live-objects-api-key)
@@ -69,7 +70,7 @@ In order to run the connector you need to have:
    * Java and supporting IDE (e.g. IntelliJ, Eclipse)
    * Apache Maven
 
-## Installation package
+## Getting the installation package
 
 The installation package can be acquired in one of two ways:
 
