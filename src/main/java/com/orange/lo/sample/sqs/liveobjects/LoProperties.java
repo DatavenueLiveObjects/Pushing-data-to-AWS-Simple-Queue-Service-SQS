@@ -14,6 +14,8 @@ import org.springframework.boot.context.properties.ConstructorBinding;
 @ConfigurationProperties(prefix = "lo")
 public class LoProperties {
 
+	private static final String CONNECTOR_TYPE = "LO_AWS_SQS_ADAPTER";
+	
     private final String hostname;
     private final String apiKey;
     private final String topic;
@@ -46,6 +48,10 @@ public class LoProperties {
         this.messageBatchSize = messageBatchSize;
     }
 
+    public String getConnectorType() {
+        return CONNECTOR_TYPE;
+    }
+    
     public String getHostname() {
         return hostname;
     }

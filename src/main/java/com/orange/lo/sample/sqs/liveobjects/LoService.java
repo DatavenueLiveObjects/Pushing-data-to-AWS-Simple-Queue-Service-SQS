@@ -30,7 +30,7 @@ public class LoService {
     private final Queue<String> messageQueue;
     private final DataManagementFifo dataManagementFifo;
     private final LoProperties loProperties;
-    private final int DEFAULT_BATCH_SIZE = 10;
+    private static final int DEFAULT_BATCH_SIZE = 10;
 
     public LoService(LOApiClient loApiClient, SqsSender sqsSender, Queue<String> messageQueue, LoProperties loProperties) {
         LOG.info("LoService init...");
