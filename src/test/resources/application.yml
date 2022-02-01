@@ -27,3 +27,7 @@ cloud:
       static: eu-central-1
     stack:
       auto: false
+
+spring:
+  main:
+    allow-bean-definition-overriding: true

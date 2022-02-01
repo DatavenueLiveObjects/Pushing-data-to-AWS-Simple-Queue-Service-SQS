@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Queue;
@@ -41,10 +43,12 @@ public class LoService {
         this.loProperties = loProperties;
     }
 
+    @PostConstruct
     public void start() {
         dataManagementFifo.connectAndSubscribe();
     }
 
+    @PreDestroy
     public void stop() {
         dataManagementFifo.disconnect();
     }
