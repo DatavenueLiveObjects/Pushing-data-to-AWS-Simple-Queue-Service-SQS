@@ -29,7 +29,7 @@ class LoMqttHandlerTest {
 
     @BeforeEach
     void setUp() {
-        when(counterProvider.mqttEvents()).thenReturn(counter);
+        when(counterProvider.getMesasageReadCounter()).thenReturn(counter);
         messageQueue = new LinkedList<>();
         handler = new LoMqttHandler(counterProvider, messageQueue);
     }

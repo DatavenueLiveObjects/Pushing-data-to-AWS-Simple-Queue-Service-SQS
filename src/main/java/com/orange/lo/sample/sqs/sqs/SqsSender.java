@@ -61,13 +61,16 @@ public class SqsSender {
         this.amazonRetryCondition = amazonRetryCondition;
     }
 
-    public void send(List<String> message) {
-        Failsafe.with(executeTaskRetryPolicy).run(() -> {
-            tpe.submit(() -> {
-                Failsafe.with(sendMessageRetryPolicy).run((executionContext) -> {
-                    counters.evtAttemptCount().increment();
-                    sendBatches(message, executionContext.getAttemptCount());
-                });
+    public void send(List<String> messages) {
+        Failsafe.with(executeTaskRetryPolicy)
+            .run(() -> {
+              tpe.submit(() -> {
+                Failsafe.with(sendMessageRetryPolicy)
+                    .onFailure(test -> counters.getMesasageSentAttemptFailedCounter().increment(messages.size()))
+                    .run(executionContext -> {
+                      counters.getMesasageSentAttemptCounter().increment(messages.size());
+                      sendBatches(messages, executionContext.getAttemptCount());
+                    });
             });
         });
     }
@@ -89,8 +92,9 @@ public class SqsSender {
 
         try {
             sqs.sendMessageBatch(sendBatchRequest);
-            counters.evtSuccess().increment(sendBatchRequest.getEntries().size());
+            counters.getMesasageSentCounter().increment(sendBatchRequest.getEntries().size());
         } catch (final AmazonClientException ace) {
+        	counters.getMesasageSentAttemptFailedCounter().increment(sendBatchRequest.getEntries().size());
             boolean shouldRetry = amazonRetryCondition.shouldRetry(sendBatchRequest, ace, attemptCount);
             throw new RetryableAmazonClientException(ace, shouldRetry);
         }
@@ -102,6 +106,7 @@ public class SqsSender {
                 .withMessageDeduplicationId(Double.toString(deduplicationId));
     }
 
+    //TODO usunac
     @Scheduled(fixedRate = 30000)
     public void reportExecutorData() {
         LOG.info("Pool size: {}, active threads: {}, tasks in queue: {}", tpe.getPoolSize(), tpe.getActiveCount(), tpe.getQueue().size());

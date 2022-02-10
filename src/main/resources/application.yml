@@ -25,3 +25,9 @@ cloud:
   aws:
     stack:
       auto: false
+     
+management:
+  endpoints:
+    web:
+      exposure:        
+        include: info, health, metrics, beans, sqssender-status, counters

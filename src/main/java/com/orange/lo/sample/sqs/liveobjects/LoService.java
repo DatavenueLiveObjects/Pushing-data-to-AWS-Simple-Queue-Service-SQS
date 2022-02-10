@@ -68,7 +68,6 @@ public class LoService {
                     messageBatch.clear();
                 }
             }
-
             if (!messageBatch.isEmpty())
                 sqsSender.send(Lists.newArrayList(messageBatch));
         }

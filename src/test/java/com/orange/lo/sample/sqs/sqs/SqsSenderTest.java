@@ -42,11 +42,14 @@ class SqsSenderTest {
     private Counters counters;
 
     @Mock
-    private Counter evtAttemptCounter;
+    private Counter mesasageSentAttemptCounter;
 
     @Mock
-    private Counter evtSuccess;
+    private Counter mesasageSentCounter;
 
+    @Mock
+    private Counter mesasageSentAttemptFailedCounter;
+    
     @Mock
     private SqsProperties sqsProperties;
 
@@ -72,9 +75,9 @@ class SqsSenderTest {
 
     @Test
     void shouldPassMessagesBatchToAmazonSQS() {
-        when(counters.evtSuccess()).thenReturn(evtSuccess);
+        when(counters.getMesasageSentCounter()).thenReturn(mesasageSentCounter);
         when(sqsProperties.getQueueUrl()).thenReturn("queueUrl");
-        when(counters.evtAttemptCount()).thenReturn(evtAttemptCounter);
+        when(counters.getMesasageSentAttemptCounter()).thenReturn(mesasageSentAttemptCounter);
         stubTPESubmit();
 
         SqsSender sqsSender = getSqsSender(new RetryPolicy<>(), new RetryPolicy<>());
@@ -88,9 +91,9 @@ class SqsSenderTest {
 
     @Test
     void shouldPassEachMessagesBatchToAmazonSQSSeparately() {
-        when(counters.evtSuccess()).thenReturn(evtSuccess);
+        when(counters.getMesasageSentCounter()).thenReturn(mesasageSentCounter);
         when(sqsProperties.getQueueUrl()).thenReturn("queueUrl");
-        when(counters.evtAttemptCount()).thenReturn(evtAttemptCounter);
+        when(counters.getMesasageSentAttemptCounter()).thenReturn(mesasageSentAttemptCounter);
         stubTPESubmit();
 
         List<List<String>> batches = Arrays.asList(
@@ -120,8 +123,11 @@ class SqsSenderTest {
             return true;
         });
 
-        when(counters.evtSuccess()).thenReturn(evtSuccess);
-        when(counters.evtAttemptCount()).thenReturn(evtAttemptCounter);
+        when(counters.getMesasageSentCounter()).thenReturn(mesasageSentCounter);
+        when(counters.getMesasageSentAttemptCounter()).thenReturn(mesasageSentAttemptCounter);
+        when(counters.getMesasageSentAttemptFailedCounter()).thenReturn(mesasageSentAttemptFailedCounter);
+        
+        
         doThrow(new AmazonClientException(EXCEPTION_MESSAGE))
                 .doReturn(null)
                 .when(amazonSQS).sendMessageBatch(any());
@@ -152,8 +158,8 @@ class SqsSenderTest {
             return true;
         });
 
-        when(counters.evtSuccess()).thenReturn(evtSuccess);
-        when(counters.evtAttemptCount()).thenReturn(evtAttemptCounter);
+        when(counters.getMesasageSentCounter()).thenReturn(mesasageSentCounter);
+        when(counters.getMesasageSentAttemptCounter()).thenReturn(mesasageSentAttemptCounter);
         doThrow(new RuntimeException()).doReturn(null).when(amazonSQS).sendMessageBatch(any());
         stubTPESubmit();
 
@@ -206,8 +212,8 @@ class SqsSenderTest {
     }
 
     private void verifyCounters(int wantedNumberOfInvocations, int messagesSize) {
-        verify(evtAttemptCounter, times(wantedNumberOfInvocations)).increment();
-        verify(evtSuccess, times(wantedNumberOfInvocations)).increment(successEventCaptor.capture());
+        verify(mesasageSentAttemptCounter, times(wantedNumberOfInvocations)).increment(anyDouble());
+        verify(mesasageSentCounter, times(wantedNumberOfInvocations)).increment(successEventCaptor.capture());
         Double successSum = successEventCaptor.getAllValues()
                 .stream()
                 .reduce(0.0, Double::sum);
