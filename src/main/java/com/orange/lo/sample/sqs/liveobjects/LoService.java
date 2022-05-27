@@ -8,7 +8,6 @@
 package com.orange.lo.sample.sqs.liveobjects;
 
 
-import com.google.common.collect.Lists;
 import com.orange.lo.sample.sqs.sqs.SqsSender;
 import com.orange.lo.sdk.LOApiClient;
 import com.orange.lo.sdk.fifomqtt.DataManagementFifo;
@@ -20,6 +19,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
@@ -60,16 +60,16 @@ public class LoService {
 
             int batchSize = loProperties.getMessageBatchSize() != null ? loProperties.getMessageBatchSize() : DEFAULT_BATCH_SIZE;
 
-            List<String> messageBatch = Lists.newArrayListWithCapacity(batchSize);
+            List<String> messageBatch = new ArrayList<>(batchSize);
             while (!messageQueue.isEmpty()) {
                 messageBatch.add(messageQueue.poll());
                 if (messageBatch.size() == batchSize) {
-                    sqsSender.send(Lists.newArrayList(messageBatch));
+                    sqsSender.send(new ArrayList<>(messageBatch));
                     messageBatch.clear();
                 }
             }
             if (!messageBatch.isEmpty())
-                sqsSender.send(Lists.newArrayList(messageBatch));
+                sqsSender.send(new ArrayList<>(messageBatch));
         }
     }
 }
