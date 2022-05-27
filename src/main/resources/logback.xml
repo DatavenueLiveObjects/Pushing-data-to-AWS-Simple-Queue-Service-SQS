@@ -5,7 +5,8 @@
         </encoder>
     </appender>
     <logger name="com.orange.lo.sample.sqs" level="DEBUG" />
-    
+    <logger name="com.amazonaws.util.EC2MetadataUtils" level="ERROR" />
+
     <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>
