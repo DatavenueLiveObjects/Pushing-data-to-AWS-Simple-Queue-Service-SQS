@@ -15,10 +15,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 
 @SpringBootApplication
 @EnableConfigurationProperties({LoProperties.class, SqsProperties.class})
-public class Mqtt2SqsApplication {
+public class ConnectorApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(Mqtt2SqsApplication.class, args);
+        SpringApplication.run(ConnectorApplication.class, args);
     }
 
 }
