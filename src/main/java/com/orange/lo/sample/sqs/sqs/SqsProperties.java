@@ -8,10 +8,10 @@
 package com.orange.lo.sample.sqs.sqs;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.ConstructorBinding;
+import org.springframework.stereotype.Component;
 
-@ConstructorBinding
 @ConfigurationProperties(prefix = "aws.sqs")
+@Component
 public class SqsProperties {
 
     private String queueUrl;
@@ -23,62 +23,59 @@ public class SqsProperties {
     private String messageGroupId;
     private String region;
     private Long keepAliveTime;
-
-    public SqsProperties(
-            String queueUrl,
-            Integer threadPoolSize,
-            Long connectionTimeout,
-            Integer taskQueueSize,
-            Long throttlingDelay,
-            Integer maxSendAttempts,
-            String messageGroupId,
-            String region,
-            Long keepAliveTime
-    ) {
-        this.queueUrl = queueUrl;
-        this.threadPoolSize = threadPoolSize;
-        this.connectionTimeout = connectionTimeout;
-        this.taskQueueSize = taskQueueSize;
-        this.throttlingDelay = throttlingDelay;
-        this.maxSendAttempts = maxSendAttempts;
-        this.messageGroupId = messageGroupId;
-        this.region = region;
-        this.keepAliveTime = keepAliveTime;
-    }
-
-    public String getQueueUrl() {
-        return queueUrl;
-    }
-
-    public Integer getThreadPoolSize() {
-        return threadPoolSize;
-    }
-
-    public Long getConnectionTimeout() {
-        return connectionTimeout;
-    }
-
-    public Integer getTaskQueueSize() {
-        return taskQueueSize;
-    }
-
-    public Long getThrottlingDelay() {
-        return throttlingDelay;
-    }
-
-    public Integer getMaxSendAttempts() {
-        return maxSendAttempts;
-    }
-
-    public String getMessageGroupId() {
-        return messageGroupId;
-    }
-
-    public String getRegion() {
-        return region;
-    }
-
-    public Long getKeepAliveTime() {
-        return keepAliveTime;
-    }
+    
+	public String getQueueUrl() {
+		return queueUrl;
+	}
+	public void setQueueUrl(String queueUrl) {
+		this.queueUrl = queueUrl;
+	}
+	public Integer getThreadPoolSize() {
+		return threadPoolSize;
+	}
+	public void setThreadPoolSize(Integer threadPoolSize) {
+		this.threadPoolSize = threadPoolSize;
+	}
+	public Long getConnectionTimeout() {
+		return connectionTimeout;
+	}
+	public void setConnectionTimeout(Long connectionTimeout) {
+		this.connectionTimeout = connectionTimeout;
+	}
+	public Integer getTaskQueueSize() {
+		return taskQueueSize;
+	}
+	public void setTaskQueueSize(Integer taskQueueSize) {
+		this.taskQueueSize = taskQueueSize;
+	}
+	public Long getThrottlingDelay() {
+		return throttlingDelay;
+	}
+	public void setThrottlingDelay(Long throttlingDelay) {
+		this.throttlingDelay = throttlingDelay;
+	}
+	public Integer getMaxSendAttempts() {
+		return maxSendAttempts;
+	}
+	public void setMaxSendAttempts(Integer maxSendAttempts) {
+		this.maxSendAttempts = maxSendAttempts;
+	}
+	public String getMessageGroupId() {
+		return messageGroupId;
+	}
+	public void setMessageGroupId(String messageGroupId) {
+		this.messageGroupId = messageGroupId;
+	}
+	public String getRegion() {
+		return region;
+	}
+	public void setRegion(String region) {
+		this.region = region;
+	}
+	public Long getKeepAliveTime() {
+		return keepAliveTime;
+	}
+	public void setKeepAliveTime(Long keepAliveTime) {
+		this.keepAliveTime = keepAliveTime;
+	}
 }

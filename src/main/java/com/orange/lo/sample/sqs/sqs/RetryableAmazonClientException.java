@@ -11,7 +11,9 @@ import com.amazonaws.AmazonClientException;
 
 public class RetryableAmazonClientException extends Exception {
 
-    AmazonClientException amazonClientException;
+	private static final long serialVersionUID = 1906486379422442007L;
+	
+	AmazonClientException amazonClientException;
     boolean shouldRetry;
 
     public RetryableAmazonClientException(AmazonClientException amazonClientException, boolean shouldRetry) {

@@ -7,20 +7,22 @@
 
 package com.orange.lo.sample.sqs.sqs;
 
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.orange.lo.sample.sqs.config.LOApiClientConfiguration;
-import net.jodah.failsafe.RetryPolicy;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.concurrent.ThreadPoolExecutor;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
+
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.orange.lo.sample.sqs.config.LOApiClientConfiguration;
+
+import net.jodah.failsafe.RetryPolicy;
 
 @SpringBootTest
-@Import({LOApiClientConfiguration.class})
+@ContextConfiguration(classes = { LOApiClientConfiguration.class })
 class SqsClientConfigBeanBindingTest {
 
     @Autowired

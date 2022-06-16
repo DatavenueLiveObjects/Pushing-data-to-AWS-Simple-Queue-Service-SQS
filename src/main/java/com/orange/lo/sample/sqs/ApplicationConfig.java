@@ -7,17 +7,6 @@
 
 package com.orange.lo.sample.sqs;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-import io.micrometer.core.instrument.Clock;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.Meter;
-import io.micrometer.core.instrument.step.StepMeterRegistry;
-import io.micrometer.core.instrument.step.StepRegistryConfig;
-
 import java.lang.invoke.MethodHandles;
 import java.time.Duration;
 import java.util.Queue;
@@ -25,6 +14,16 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import io.micrometer.core.instrument.Clock;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.step.StepMeterRegistry;
+import io.micrometer.core.instrument.step.StepRegistryConfig;
 
 @Configuration
 public class ApplicationConfig {

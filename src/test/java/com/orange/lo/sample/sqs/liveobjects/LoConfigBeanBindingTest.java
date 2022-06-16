@@ -7,17 +7,18 @@
 
 package com.orange.lo.sample.sqs.liveobjects;
 
-import com.orange.lo.sample.sqs.config.LOApiClientConfiguration;
-import com.orange.lo.sdk.LOApiClient;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import com.orange.lo.sample.sqs.config.LOApiClientConfiguration;
+import com.orange.lo.sdk.LOApiClient;
 
 @SpringBootTest
-@Import({LOApiClientConfiguration.class})
+@ContextConfiguration(classes = { LOApiClientConfiguration.class })
 class LoConfigBeanBindingTest {
 
     @Autowired

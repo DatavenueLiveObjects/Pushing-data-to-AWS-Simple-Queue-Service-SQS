@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.util.StringUtils;
+import org.springframework.util.ObjectUtils;
 
 import com.orange.lo.sdk.LOApiClient;
 import com.orange.lo.sdk.LOApiClientParameters;
@@ -48,7 +48,7 @@ public class LoConfig {
     }
 
     private LOApiClientParameters getLoApiClientParameters() {
-        if (StringUtils.isEmpty(loProperties.getTopic())) {
+        if (ObjectUtils.isEmpty(loProperties.getTopic())) {
             throw new IllegalArgumentException("Topic is required");
         }
 
@@ -58,11 +58,11 @@ public class LoConfig {
                 .dataManagementMqttCallback(loMqttHandler)
                 .automaticReconnect(true);
 
-        if ( !StringUtils.isEmpty(loProperties.getHostname()) ) {
+        if ( !ObjectUtils.isEmpty(loProperties.getHostname()) ) {
                 builder.hostname(loProperties.getHostname());
         }
 
-        if ( !StringUtils.isEmpty(loProperties.getMqttPersistenceDir()) ) {
+        if ( !ObjectUtils.isEmpty(loProperties.getMqttPersistenceDir()) ) {
             builder.mqttPersistenceDataDir(loProperties.getMqttPersistenceDir());
         }
 
@@ -78,7 +78,7 @@ public class LoConfig {
             builder.connectionTimeout(loProperties.getConnectionTimeout());
         }
         
-        builder.connectorType(loProperties.getConnectorType());
+        builder.connectorType(LoProperties.getConnectorType());
         builder.connectorVersion(getConnectorVersion());
         
         return builder.build();
