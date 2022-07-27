@@ -31,3 +31,9 @@ management:
     web:
       exposure:        
         include: info, health, metrics, beans, sqssender-status, counters
+  endpoint:
+    health:
+      show-details: ALWAYS
+  health:
+    defaults:
+      enabled: false
