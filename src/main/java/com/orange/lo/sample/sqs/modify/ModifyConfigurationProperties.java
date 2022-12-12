@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) Orange. All Rights Reserved.
+ * <p>
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 package com.orange.lo.sample.sqs.modify;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -137,14 +144,14 @@ public class ModifyConfigurationProperties {
 	}
 	@Override
 	public String toString() {
-		return "ModifyConfigurationProperties [loApiKey=" + loApiKey + ", loTopic=" + loTopic
+		return "ModifyConfigurationProperties [loApiKey=***" + ", loTopic=" + loTopic
 				+ ", loSynchronizationInterval=" + loSynchronizationInterval + ", loMessageQos=" + loMessageQos
 				+ ", loKeepAliveIntervalSeconds=" + loKeepAliveIntervalSeconds + ", loConnectionTimeout="
 				+ loConnectionTimeout + ", loMessageBatchSize=" + loMessageBatchSize + ", sqsQueueUrl=" + sqsQueueUrl
 				+ ", sqsThreadPoolSize=" + sqsThreadPoolSize + ", sqsConnectionTimeout=" + sqsConnectionTimeout
 				+ ", sqsTaskQueueSize=" + sqsTaskQueueSize + ", sqsThrottlingDelay=" + sqsThrottlingDelay
 				+ ", sqsMaxSendAttempts=" + sqsMaxSendAttempts + ", sqsMessageGroupId=" + sqsMessageGroupId
-				+ ", sqsRegion=" + sqsRegion + ", sqsKeepAliveTime=" + sqsKeepAliveTime + ", awsAccessKey="
-				+ awsAccessKey + ", awsSecretAccessKey=" + awsSecretAccessKey + "]";
+				+ ", sqsRegion=" + sqsRegion + ", sqsKeepAliveTime=" + sqsKeepAliveTime + ", awsAccessKey=***"
+				+ ", awsSecretAccessKey=***" + "]";
 	}
 }
