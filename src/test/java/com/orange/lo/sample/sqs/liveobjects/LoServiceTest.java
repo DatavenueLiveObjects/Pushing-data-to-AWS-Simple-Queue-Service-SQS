@@ -7,7 +7,12 @@
 
 package com.orange.lo.sample.sqs.liveobjects;
 
+
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.model.GetQueueUrlResult;
+import com.orange.lo.sample.sqs.sqs.SqsProperties;
 import com.orange.lo.sample.sqs.sqs.SqsSender;
+import com.orange.lo.sample.sqs.utils.ConnectorHealthActuatorEndpoint;
 import com.orange.lo.sdk.LOApiClient;
 import com.orange.lo.sdk.fifomqtt.DataManagementFifo;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,6 +46,15 @@ class LoServiceTest {
     @Mock
     private LoProperties properties;
 
+    @Mock
+    private ConnectorHealthActuatorEndpoint connectorHealthActuatorEndpoint;
+
+    @Mock
+    public AmazonSQS amazonSQS;
+
+    @Mock
+    private SqsProperties sqsProperties;
+
     private LoService service;
 
 
@@ -51,11 +65,15 @@ class LoServiceTest {
     }
 
     private void prepareService(LinkedList<String> messageQueue) {
-        service = new LoService(loApiClient, sqsSender, messageQueue, properties);
+        service = new LoService(loApiClient, sqsSender, messageQueue, properties, amazonSQS, sqsProperties, connectorHealthActuatorEndpoint);
     }
 
     @Test
-    public void shouldStartMethodDoTriggerDataManagementFifo() {
+    void shouldStartMethodDoTriggerDataManagementFifo() {
+        when((amazonSQS.getQueueUrl(sqsProperties.getQueueUrl()))).thenReturn(new GetQueueUrlResult());
+        when(connectorHealthActuatorEndpoint.isLoConnectionStatus()).thenReturn(true);
+        when(connectorHealthActuatorEndpoint.isCloudConnectionStatus()).thenReturn(true);
+
         // when
         service.start();
 
@@ -64,7 +82,7 @@ class LoServiceTest {
     }
 
     @Test
-    public void shouldStopMethodDoDisconnectDataManagementFifo() {
+    void shouldStopMethodDoDisconnectDataManagementFifo() {
         // when
         service.stop();
 
@@ -73,7 +91,7 @@ class LoServiceTest {
     }
 
     @Test
-    public void shouldNotSendMessagesIfQueueIsEmpty() {
+    void shouldNotSendMessagesIfQueueIsEmpty() {
         // when
         service.send();
 
@@ -82,7 +100,7 @@ class LoServiceTest {
     }
 
     @Test
-    public void shouldSendMessagesInOneBatchIfQueueNotExceedMessageBatchSizeProperty() {
+    void shouldSendMessagesInOneBatchIfQueueNotExceedMessageBatchSizeProperty() {
         // given
         int batchSize = 5;
 
@@ -102,7 +120,7 @@ class LoServiceTest {
     }
 
     @Test
-    public void shouldSplitMessagesIntoPacketsIfQueueExceedMessageBatchSizeProperty() {
+    void shouldSplitMessagesIntoPacketsIfQueueExceedMessageBatchSizeProperty() {
         // given
         int batchSize = 5;
         int totalLength = batchSize + 1;
@@ -125,7 +143,7 @@ class LoServiceTest {
     }
 
     @Test
-    public void shouldSetDefaultBatchSizeTo10() {
+    void shouldSetDefaultBatchSizeTo10() {
         // given
         int expectedBatchSize = 10;
 

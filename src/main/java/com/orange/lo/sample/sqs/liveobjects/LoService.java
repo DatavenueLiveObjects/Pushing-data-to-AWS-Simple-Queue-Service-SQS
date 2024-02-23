@@ -8,9 +8,14 @@
 package com.orange.lo.sample.sqs.liveobjects;
 
 
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.model.AmazonSQSException;
+import com.orange.lo.sample.sqs.sqs.SqsProperties;
 import com.orange.lo.sample.sqs.sqs.SqsSender;
+import com.orange.lo.sample.sqs.utils.ConnectorHealthActuatorEndpoint;
 import com.orange.lo.sdk.LOApiClient;
 import com.orange.lo.sdk.fifomqtt.DataManagementFifo;
+import com.orange.lo.sdk.mqtt.exceptions.LoMqttException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -33,19 +38,48 @@ public class LoService {
     private final DataManagementFifo dataManagementFifo;
     private final LoProperties loProperties;
     private static final int DEFAULT_BATCH_SIZE = 10;
+    private final AmazonSQS amazonSQS;
+    private final SqsProperties sqsProperties;
+    private final ConnectorHealthActuatorEndpoint connectorHealthActuatorEndpoint;
 
-    public LoService(LOApiClient loApiClient, SqsSender sqsSender, Queue<String> messageQueue, LoProperties loProperties) {
+    public LoService(LOApiClient loApiClient, SqsSender sqsSender, Queue<String> messageQueue, LoProperties loProperties,
+                     AmazonSQS amazonSQS, SqsProperties sqsProperties,
+                     ConnectorHealthActuatorEndpoint connectorHealthActuatorEndpoint) {
         LOG.info("LoService init...");
 
         this.sqsSender = sqsSender;
         this.messageQueue = messageQueue;
         this.dataManagementFifo = loApiClient.getDataManagementFifo();
         this.loProperties = loProperties;
+        this.amazonSQS = amazonSQS;
+        this.sqsProperties = sqsProperties;
+        this.connectorHealthActuatorEndpoint = connectorHealthActuatorEndpoint;
     }
 
     @PostConstruct
     public void start() {
-        dataManagementFifo.connectAndSubscribe();
+        try {
+            amazonSQS.getQueueUrl(sqsProperties.getQueueUrl());
+        } catch (AmazonSQSException e) {
+            LOG.error("Problem with connection. Check AWS credentials. " + e.getErrorMessage(), e);
+            connectorHealthActuatorEndpoint.setCloudConnectionStatus(false);
+        } catch (Exception e) {
+            LOG.error("Problem with connection. " + e.getMessage(), e);
+            connectorHealthActuatorEndpoint.setCloudConnectionStatus(false);
+        }
+
+        try {
+            dataManagementFifo.connect();
+        } catch (LoMqttException e) {
+            LOG.error("Problem with connection. Check Lo credentials. ", e);
+            connectorHealthActuatorEndpoint.setLoConnectionStatus(false);
+        }
+
+        if (dataManagementFifo.isConnected())
+            dataManagementFifo.disconnect();
+
+        if (connectorHealthActuatorEndpoint.isCloudConnectionStatus() && connectorHealthActuatorEndpoint.isLoConnectionStatus())
+            dataManagementFifo.connectAndSubscribe();
     }
 
     @PreDestroy
