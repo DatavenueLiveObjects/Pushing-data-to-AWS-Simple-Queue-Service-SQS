@@ -8,9 +8,6 @@
 package com.orange.lo.sample.sqs.liveobjects;
 
 
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.model.GetQueueUrlResult;
-import com.orange.lo.sample.sqs.sqs.SqsProperties;
 import com.orange.lo.sample.sqs.sqs.SqsSender;
 import com.orange.lo.sample.sqs.utils.ConnectorHealthActuatorEndpoint;
 import com.orange.lo.sdk.LOApiClient;
@@ -49,12 +46,6 @@ class LoServiceTest {
     @Mock
     private ConnectorHealthActuatorEndpoint connectorHealthActuatorEndpoint;
 
-    @Mock
-    public AmazonSQS amazonSQS;
-
-    @Mock
-    private SqsProperties sqsProperties;
-
     private LoService service;
 
 
@@ -65,12 +56,11 @@ class LoServiceTest {
     }
 
     private void prepareService(LinkedList<String> messageQueue) {
-        service = new LoService(loApiClient, sqsSender, messageQueue, properties, amazonSQS, sqsProperties, connectorHealthActuatorEndpoint);
+        service = new LoService(loApiClient, sqsSender, messageQueue, properties, connectorHealthActuatorEndpoint);
     }
 
     @Test
     void shouldStartMethodDoTriggerDataManagementFifo() {
-        when((amazonSQS.getQueueUrl(sqsProperties.getQueueUrl()))).thenReturn(new GetQueueUrlResult());
         when(connectorHealthActuatorEndpoint.isLoConnectionStatus()).thenReturn(true);
         when(connectorHealthActuatorEndpoint.isCloudConnectionStatus()).thenReturn(true);
 

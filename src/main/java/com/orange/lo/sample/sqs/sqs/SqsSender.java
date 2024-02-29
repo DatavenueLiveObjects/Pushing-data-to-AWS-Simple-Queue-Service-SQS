@@ -10,8 +10,10 @@ package com.orange.lo.sample.sqs.sqs;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.retry.RetryPolicy.RetryCondition;
 import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.model.AmazonSQSException;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
+import com.orange.lo.sample.sqs.utils.ConnectorHealthActuatorEndpoint;
 import com.orange.lo.sample.sqs.utils.Counters;
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
@@ -21,6 +23,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Random;
@@ -36,6 +39,7 @@ public class SqsSender {
     private final SqsProperties sqsProperties;
     private final AmazonSQS sqs;
     private final Counters counters;
+    private final ConnectorHealthActuatorEndpoint connectorHealthActuatorEndpoint;
     private final ThreadPoolExecutor tpe;
     private final Random random;
     private final RetryPolicy<Void> sendMessageRetryPolicy;
@@ -43,19 +47,21 @@ public class SqsSender {
     private final RetryCondition amazonRetryCondition;
 
     public SqsSender(
-            AmazonSQS amazonSQ,
+            AmazonSQS amazonSQS,
             SqsProperties sqsProperties,
             ThreadPoolExecutor tpe,
             Counters counters,
+            ConnectorHealthActuatorEndpoint connectorHealthActuatorEndpoint,
             RetryPolicy<Void> sendMessageRetryPolicy,
             RetryPolicy<Void> executeTaskRetryPolicy,
             RetryCondition amazonRetryCondition
     ) {
-        this.sqs = amazonSQ;
+        this.sqs = amazonSQS;
         this.sqsProperties = sqsProperties;
         this.random = new Random();
         this.tpe = tpe;
         this.counters = counters;
+        this.connectorHealthActuatorEndpoint = connectorHealthActuatorEndpoint;
         this.sendMessageRetryPolicy = sendMessageRetryPolicy;
         this.executeTaskRetryPolicy = executeTaskRetryPolicy;
         this.amazonRetryCondition = amazonRetryCondition;
@@ -63,16 +69,12 @@ public class SqsSender {
 
     public void send(List<String> messages) {
         Failsafe.with(executeTaskRetryPolicy)
-            .run(() -> {
-              tpe.submit(() -> {
-                Failsafe.with(sendMessageRetryPolicy)
-                    .onFailure(test -> counters.getMesasageSentAttemptFailedCounter().increment(messages.size()))
-                    .run(executionContext -> {
-                      counters.getMesasageSentAttemptCounter().increment(messages.size());
-                      sendBatches(messages, executionContext.getAttemptCount());
-                    });
-            });
-        });
+                .run(() -> tpe.submit(() -> Failsafe.with(sendMessageRetryPolicy)
+                        .onFailure(test -> counters.getMesasageSentAttemptFailedCounter().increment(messages.size()))
+                        .run(executionContext -> {
+                            counters.getMesasageSentAttemptCounter().increment(messages.size());
+                            sendBatches(messages, executionContext.getAttemptCount());
+                        })));
     }
 
     private void sendBatches(List<String> batch, int attemptCount) throws RetryableAmazonClientException {
@@ -94,7 +96,7 @@ public class SqsSender {
             sqs.sendMessageBatch(sendBatchRequest);
             counters.getMesasageSentCounter().increment(sendBatchRequest.getEntries().size());
         } catch (final AmazonClientException ace) {
-        	counters.getMesasageSentAttemptFailedCounter().increment(sendBatchRequest.getEntries().size());
+            counters.getMesasageSentAttemptFailedCounter().increment(sendBatchRequest.getEntries().size());
             boolean shouldRetry = amazonRetryCondition.shouldRetry(sendBatchRequest, ace, attemptCount);
             throw new RetryableAmazonClientException(ace, shouldRetry);
         }
@@ -110,5 +112,18 @@ public class SqsSender {
     @Scheduled(fixedRate = 30000)
     public void reportExecutorData() {
         LOG.info("Pool size: {}, active threads: {}, tasks in queue: {}", tpe.getPoolSize(), tpe.getActiveCount(), tpe.getQueue().size());
+    }
+
+    @PostConstruct
+    public void checkConnection() {
+        try {
+            sqs.getQueueUrl(sqsProperties.getQueueUrl());
+        } catch (AmazonSQSException e) {
+            LOG.error("Problem with connection. Check AWS credentials. " + e.getErrorMessage(), e);
+            connectorHealthActuatorEndpoint.setCloudConnectionStatus(false);
+        } catch (Exception e) {
+            LOG.error("Problem with connection. " + e.getMessage(), e);
+            connectorHealthActuatorEndpoint.setCloudConnectionStatus(false);
+        }
     }
 }
