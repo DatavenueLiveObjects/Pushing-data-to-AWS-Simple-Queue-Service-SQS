@@ -233,7 +233,7 @@ class SqsSenderTest {
 
     private SqsSender getSqsSender(RetryPolicy<Void> sendMessageRetryPolicy, RetryPolicy<Void> executeTaskRetryPolicy) {
         return new SqsSender(
-                amazonSQS, sqsProperties, tpe, counters, sendMessageRetryPolicy, executeTaskRetryPolicy, amazonRetryCondition
+                amazonSQS, sqsProperties, tpe, counters, null, sendMessageRetryPolicy, executeTaskRetryPolicy, amazonRetryCondition
         );
     }
 }
