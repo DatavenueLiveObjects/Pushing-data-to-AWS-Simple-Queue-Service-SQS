@@ -11,6 +11,7 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.retry.RetryPolicy.RetryCondition;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.AmazonSQSException;
+import com.amazonaws.services.sqs.model.EmptyBatchRequestException;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
 import com.orange.lo.sample.sqs.utils.ConnectorHealthActuatorEndpoint;
@@ -116,8 +117,12 @@ public class SqsSender {
 
     @PostConstruct
     public void checkConnection() {
+        SendMessageBatchRequest sendBatchRequest = new SendMessageBatchRequest()
+                .withQueueUrl(sqsProperties.getQueueUrl());
         try {
-            sqs.getQueueUrl(sqsProperties.getQueueUrl());
+            sqs.sendMessageBatch(sendBatchRequest);
+        } catch (EmptyBatchRequestException ignored) {
+            LOG.info("Checking AWS connection");
         } catch (AmazonSQSException e) {
             LOG.error("Problem with connection. Check AWS credentials. " + e.getErrorMessage(), e);
             connectorHealthActuatorEndpoint.setCloudConnectionStatus(false);
