@@ -14,8 +14,11 @@ import com.amazonaws.services.sqs.model.AmazonSQSException;
 import com.amazonaws.services.sqs.model.EmptyBatchRequestException;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
+import com.orange.lo.sample.sqs.liveobjects.LoMessage;
+import com.orange.lo.sample.sqs.liveobjects.LoProperties;
 import com.orange.lo.sample.sqs.utils.ConnectorHealthActuatorEndpoint;
 import com.orange.lo.sample.sqs.utils.Counters;
+import com.orange.lo.sdk.LOApiClient;
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 import org.slf4j.Logger;
@@ -38,6 +41,8 @@ public class SqsSender {
 
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final SqsProperties sqsProperties;
+    private final LoProperties loProperties;
+    private final LOApiClient loApiClient;
     private final AmazonSQS sqs;
     private final Counters counters;
     private final ConnectorHealthActuatorEndpoint connectorHealthActuatorEndpoint;
@@ -50,15 +55,19 @@ public class SqsSender {
     public SqsSender(
             AmazonSQS amazonSQS,
             SqsProperties sqsProperties,
+            LoProperties loProperties,
             ThreadPoolExecutor tpe,
             Counters counters,
             ConnectorHealthActuatorEndpoint connectorHealthActuatorEndpoint,
             RetryPolicy<Void> sendMessageRetryPolicy,
             RetryPolicy<Void> executeTaskRetryPolicy,
-            RetryCondition amazonRetryCondition
+            RetryCondition amazonRetryCondition,
+            LOApiClient loApiClient
     ) {
         this.sqs = amazonSQS;
         this.sqsProperties = sqsProperties;
+        this.loProperties = loProperties;
+        this.loApiClient = loApiClient;
         this.random = new Random();
         this.tpe = tpe;
         this.counters = counters;
@@ -68,13 +77,15 @@ public class SqsSender {
         this.amazonRetryCondition = amazonRetryCondition;
     }
 
-    public void send(List<String> messages) {
+    public void send(List<LoMessage> messages) {
         Failsafe.with(executeTaskRetryPolicy)
                 .run(() -> tpe.submit(() -> Failsafe.with(sendMessageRetryPolicy)
-                        .onFailure(test -> counters.getMesasageSentAttemptFailedCounter().increment(messages.size()))
+                        .onFailure(test -> counters.getMesasageSentFailedCounter().increment(messages.size()))
+                        .onSuccess(test -> counters.getMesasageSentCounter().increment(messages.size()))
+                        .onComplete(test -> messages.forEach(m -> loApiClient.getDataManagementFifo().sendAck(m.getMessageId(), loProperties.getMessageQos())))
                         .run(executionContext -> {
                             counters.getMesasageSentAttemptCounter().increment(messages.size());
-                            sendBatches(messages, executionContext.getAttemptCount());
+                            sendBatches(messages.stream().map(LoMessage::getMessage).collect(Collectors.toList()), executionContext.getAttemptCount());
                         })));
     }
 
@@ -95,7 +106,6 @@ public class SqsSender {
 
         try {
             sqs.sendMessageBatch(sendBatchRequest);
-            counters.getMesasageSentCounter().increment(sendBatchRequest.getEntries().size());
         } catch (final AmazonClientException ace) {
             counters.getMesasageSentAttemptFailedCounter().increment(sendBatchRequest.getEntries().size());
             boolean shouldRetry = amazonRetryCondition.shouldRetry(sendBatchRequest, ace, attemptCount);

@@ -15,6 +15,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import com.orange.lo.sample.sqs.liveobjects.LoMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -31,7 +32,7 @@ public class ApplicationConfig {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	
     @Bean
-    public Queue<String> messageQueue() {
+    public Queue<LoMessage> messageQueue() {
         return new ConcurrentLinkedQueue<>();
     }
     

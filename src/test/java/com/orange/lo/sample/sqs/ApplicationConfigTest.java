@@ -7,6 +7,7 @@
 
 package com.orange.lo.sample.sqs;
 
+import com.orange.lo.sample.sqs.liveobjects.LoMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +26,7 @@ class ApplicationConfigTest {
 
     @Test
     void shouldCreateMessageQueue() {
-        Queue<String> stringQueue = applicationConfig.messageQueue();
+        Queue<LoMessage> stringQueue = applicationConfig.messageQueue();
 
         assertNotNull(stringQueue);
     }

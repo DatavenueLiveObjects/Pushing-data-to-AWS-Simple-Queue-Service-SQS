@@ -12,7 +12,10 @@ import com.amazonaws.retry.RetryPolicy.RetryCondition;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
+import com.orange.lo.sample.sqs.liveobjects.LoMessage;
+import com.orange.lo.sample.sqs.liveobjects.LoProperties;
 import com.orange.lo.sample.sqs.utils.Counters;
+import com.orange.lo.sdk.LOApiClient;
 import io.micrometer.core.instrument.Counter;
 import net.jodah.failsafe.RetryPolicy;
 import org.junit.jupiter.api.Test;
@@ -44,6 +47,12 @@ class SqsSenderTest {
 
     @Mock
     private AmazonSQS amazonSQS;
+
+    @Mock
+    private LoProperties loProperties;
+
+    @Mock
+    private LOApiClient loApiClient;
 
     @Mock
     private Counters counters;
@@ -88,7 +97,7 @@ class SqsSenderTest {
         stubTPESubmit();
 
         SqsSender sqsSender = getSqsSender(new RetryPolicy<>(), new RetryPolicy<>());
-        List<String> messages = getMessages(PART_BATCH_SIZE);
+        List<LoMessage> messages = getMessages(PART_BATCH_SIZE);
 
         sqsSender.send(messages);
 
@@ -103,18 +112,18 @@ class SqsSenderTest {
         when(counters.getMesasageSentAttemptCounter()).thenReturn(mesasageSentAttemptCounter);
         stubTPESubmit();
 
-        List<List<String>> batches = Arrays.asList(
+        List<List<LoMessage>> batches = Arrays.asList(
                 getMessages(FULL_BATCH_SIZE),
                 getMessages(FULL_BATCH_SIZE),
                 getMessages(PART_BATCH_SIZE)
         );
         SqsSender sqsSender = getSqsSender(new RetryPolicy<>(), new RetryPolicy<>());
 
-        for (List<String> list : batches) {
+        for (List<LoMessage> list : batches) {
             sqsSender.send(list);
         }
 
-        List<String> messages = batches.stream()
+        List<LoMessage> messages = batches.stream()
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
         verifyMessagesSentBySQS(3, messages);
@@ -142,7 +151,7 @@ class SqsSenderTest {
         stubTPESubmit();
 
         SqsSender sqsSender = getSqsSender(sendMessageRetryPolicy, new RetryPolicy<>());
-        List<String> messages = Collections.emptyList();
+        List<LoMessage> messages = Collections.emptyList();
 
         // when
         sqsSender.send(messages);
@@ -171,7 +180,7 @@ class SqsSenderTest {
         stubTPESubmit();
 
         SqsSender sqsSender = getSqsSender(sendMessageRetryPolicy, new RetryPolicy<>());
-        List<String> messages = Collections.emptyList();
+        List<LoMessage> messages = Collections.emptyList();
 
         // when
         sqsSender.send(messages);
@@ -193,7 +202,7 @@ class SqsSenderTest {
         doThrow(RejectedExecutionException.class).doReturn(null).when(tpe).submit((Runnable) any());
 
         SqsSender sqsSender = getSqsSender(new RetryPolicy<>(), executeTaskRetryPolicy);
-        List<String> messages = Collections.emptyList();
+        List<LoMessage> messages = Collections.emptyList();
 
         // when
         sqsSender.send(messages);
@@ -203,11 +212,11 @@ class SqsSenderTest {
         assertTrue(catchedException.get() instanceof RejectedExecutionException);
     }
 
-    private void verifyMessagesSentBySQS(int wantedNumberOfInvocations, List<String> messages) {
+    private void verifyMessagesSentBySQS(int wantedNumberOfInvocations, List<LoMessage> messages) {
         verify(amazonSQS, times(wantedNumberOfInvocations)).sendMessageBatch(messageBatchRequestCaptor.capture());
         List<String> messagesSent = toMessageBodyList(messageBatchRequestCaptor.getAllValues());
         assertEquals(messages.size(), messagesSent.size());
-        assertTrue(messagesSent.containsAll(messages));
+        assertTrue(messagesSent.containsAll(messages.stream().map(LoMessage::getMessage).collect(Collectors.toList())));
     }
 
     private List<String> toMessageBodyList(List<SendMessageBatchRequest> allValues) {
@@ -227,13 +236,13 @@ class SqsSenderTest {
         assertEquals(messagesSize, successSum.intValue());
     }
 
-    private List<String> getMessages(int amount) {
-        return IntStream.rangeClosed(1, amount).mapToObj(i -> MESSAGE + i).collect(Collectors.toList());
+    private List<LoMessage> getMessages(int amount) {
+        return IntStream.rangeClosed(1, amount).mapToObj(i -> new LoMessage(1,MESSAGE + i)).collect(Collectors.toList());
     }
 
     private SqsSender getSqsSender(RetryPolicy<Void> sendMessageRetryPolicy, RetryPolicy<Void> executeTaskRetryPolicy) {
         return new SqsSender(
-                amazonSQS, sqsProperties, tpe, counters, null, sendMessageRetryPolicy, executeTaskRetryPolicy, amazonRetryCondition
+                amazonSQS, sqsProperties, loProperties, tpe, counters, null, sendMessageRetryPolicy, executeTaskRetryPolicy, amazonRetryCondition, loApiClient
         );
     }
 }
