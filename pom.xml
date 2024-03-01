@@ -9,7 +9,7 @@
     </parent>
     <groupId>com.orange.lo.sample</groupId>
     <artifactId>mqtt2sqs</artifactId>
-    <version>1.13-SNAPSHOT</version>
+    <version>1.13</version>
     <name>Mqtt2Sqs</name>
     <description>Mqtt2Sqs</description>
 
@@ -136,7 +136,7 @@
         <url>https://github.com/DatavenueLiveObjects/Pushing-data-to-AWS-Simple-Queue-Service-SQS.git</url>
         <connection>scm:git:${project.scm.url}</connection>
         <developerConnection>scm:git:${project.scm.url}</developerConnection>
-        <tag>v1.0</tag>
+        <tag>v1.13</tag>
     </scm>
 
     <profiles>
