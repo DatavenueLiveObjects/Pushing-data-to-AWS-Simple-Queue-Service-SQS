@@ -31,13 +31,13 @@ public class LoService {
     private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private final SqsSender sqsSender;
-    private final Queue<String> messageQueue;
+    private final Queue<LoMessage> messageQueue;
     private final DataManagementFifo dataManagementFifo;
     private final LoProperties loProperties;
     private static final int DEFAULT_BATCH_SIZE = 10;
     private final ConnectorHealthActuatorEndpoint connectorHealthActuatorEndpoint;
 
-    public LoService(LOApiClient loApiClient, SqsSender sqsSender, Queue<String> messageQueue, LoProperties loProperties,
+    public LoService(LOApiClient loApiClient, SqsSender sqsSender, Queue<LoMessage> messageQueue, LoProperties loProperties,
                      ConnectorHealthActuatorEndpoint connectorHealthActuatorEndpoint) {
         LOG.info("LoService init...");
 
@@ -69,11 +69,11 @@ public class LoService {
     @Scheduled(fixedRateString = "${lo.synchronization-interval}")
     public void send() {
         if (!messageQueue.isEmpty()) {
-            LOG.info("Start retriving messages...");
+            LOG.info("Start sending messages...");
 
             int batchSize = loProperties.getMessageBatchSize() != null ? loProperties.getMessageBatchSize() : DEFAULT_BATCH_SIZE;
 
-            List<String> messageBatch = new ArrayList<>(batchSize);
+            List<LoMessage> messageBatch = new ArrayList<>(batchSize);
             while (!messageQueue.isEmpty()) {
                 messageBatch.add(messageQueue.poll());
                 if (messageBatch.size() == batchSize) {

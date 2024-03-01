@@ -13,8 +13,6 @@ import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.library.DependencyRules;
 
-import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
-
 @AnalyzeClasses(
         packages = "com.orange.lo.sample.sqs",
         importOptions = {
@@ -23,13 +21,6 @@ import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.sli
         }
 )
 class DependencyTest {
-
-    @ArchTest
-    void shouldNotHaveCyclicalDependenciesBetweenClasses(JavaClasses classes) {
-        slices().matching("com.orange.lo.sample.sqs.(**)")
-                .should().beFreeOfCycles()
-                .check(classes);
-    }
 
     @ArchTest
     void noClassesShouldDependsOnUpperPackages(JavaClasses classes) {

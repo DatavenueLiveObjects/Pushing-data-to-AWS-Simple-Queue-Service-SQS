@@ -29,22 +29,18 @@ public class LoConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private final LoProperties loProperties;
-
     private final LoMqttHandler loMqttHandler;
 
-    private final LOApiClientFactory loApiClientFactory;
-
-    public LoConfig(LoProperties loProperties, LoMqttHandler loMqttHandler, LOApiClientFactory loApiClientFactory) {
+    public LoConfig(LoProperties loProperties, LoMqttHandler loMqttHandler) {
         this.loProperties = loProperties;
         this.loMqttHandler = loMqttHandler;
-        this.loApiClientFactory = loApiClientFactory;
     }
 
     @Bean
     public LOApiClient loApiClient() {
         LOGGER.debug("LoConfig init...");
         LOApiClientParameters parameters = getLoApiClientParameters();
-        return loApiClientFactory.createLOApiClient(parameters);
+        return new LOApiClient(parameters);
     }
 
     private LOApiClientParameters getLoApiClientParameters() {
@@ -56,7 +52,8 @@ public class LoConfig {
                 .apiKey(loProperties.getApiKey())
                 .topics(Collections.singletonList(loProperties.getTopic()))
                 .dataManagementMqttCallback(loMqttHandler)
-                .automaticReconnect(true);
+                .automaticReconnect(true)
+                .manualAck(true);
 
         if ( !ObjectUtils.isEmpty(loProperties.getHostname()) ) {
                 builder.hostname(loProperties.getHostname());

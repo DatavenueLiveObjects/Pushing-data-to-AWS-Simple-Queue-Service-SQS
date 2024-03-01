@@ -55,7 +55,7 @@ class LoServiceTest {
         prepareService(new LinkedList<>());
     }
 
-    private void prepareService(LinkedList<String> messageQueue) {
+    private void prepareService(LinkedList<LoMessage> messageQueue) {
         service = new LoService(loApiClient, sqsSender, messageQueue, properties, connectorHealthActuatorEndpoint);
     }
 
@@ -96,11 +96,11 @@ class LoServiceTest {
 
         when(properties.getMessageBatchSize()).thenReturn(batchSize);
 
-        LinkedList<String> messageQueue = getExampleMessageQueue(batchSize);
+        LinkedList<LoMessage> messageQueue = getExampleMessageQueue(batchSize);
 
         prepareService(messageQueue);
 
-        List<String> expectedMessages = new ArrayList<>(messageQueue);
+        List<LoMessage> expectedMessages = new ArrayList<>(messageQueue);
 
         // when
         service.send();
@@ -117,12 +117,12 @@ class LoServiceTest {
 
         when(properties.getMessageBatchSize()).thenReturn(batchSize);
 
-        LinkedList<String> messageQueue = getExampleMessageQueue(totalLength);
+        LinkedList<LoMessage> messageQueue = getExampleMessageQueue(totalLength);
 
         prepareService(messageQueue);
 
-        List<String> expectedMessages1 = (new LinkedList<>(messageQueue)).subList(0, batchSize);
-        List<String> expectedMessages2 = (new LinkedList<>(messageQueue)).subList(batchSize, totalLength);
+        List<LoMessage> expectedMessages1 = (new LinkedList<>(messageQueue)).subList(0, batchSize);
+        List<LoMessage> expectedMessages2 = (new LinkedList<>(messageQueue)).subList(batchSize, totalLength);
 
         // when
         service.send();
@@ -137,11 +137,11 @@ class LoServiceTest {
         // given
         int expectedBatchSize = 10;
 
-        LinkedList<String> messageQueue = getExampleMessageQueue(expectedBatchSize);
+        LinkedList<LoMessage> messageQueue = getExampleMessageQueue(expectedBatchSize);
 
         prepareService(messageQueue);
 
-        List<String> expectedMessages = (new LinkedList<>(messageQueue)).subList(0, expectedBatchSize);
+        List<LoMessage> expectedMessages = (new LinkedList<>(messageQueue)).subList(0, expectedBatchSize);
 
         // when
         service.send();
@@ -151,9 +151,9 @@ class LoServiceTest {
         verify(sqsSender, never()).send(not(eq(expectedMessages)));
     }
 
-    private LinkedList<String> getExampleMessageQueue(int batchSize) {
+    private LinkedList<LoMessage> getExampleMessageQueue(int batchSize) {
         return IntStream.range(1, batchSize + 1)
-                .mapToObj(i -> String.format("Message %d", i))
+                .mapToObj(i -> new LoMessage(i, String.format("Message %d", i)))
                 .collect(Collectors.toCollection(LinkedList::new));
     }
 }
