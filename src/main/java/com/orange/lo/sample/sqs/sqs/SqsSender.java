@@ -106,7 +106,10 @@ public class SqsSender {
 
         try {
             sqs.sendMessageBatch(sendBatchRequest);
+            connectorHealthActuatorEndpoint.setCloudConnectionStatus(true);
         } catch (final AmazonClientException ace) {
+            LOG.error("Problem with connection. " + ace.getMessage(), ace);
+            connectorHealthActuatorEndpoint.setCloudConnectionStatus(false);
             counters.getMesasageSentAttemptFailedCounter().increment(sendBatchRequest.getEntries().size());
             boolean shouldRetry = amazonRetryCondition.shouldRetry(sendBatchRequest, ace, attemptCount);
             throw new RetryableAmazonClientException(ace, shouldRetry);
