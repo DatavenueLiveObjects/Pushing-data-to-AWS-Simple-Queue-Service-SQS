@@ -14,6 +14,7 @@ import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
 import com.orange.lo.sample.sqs.liveobjects.LoMessage;
 import com.orange.lo.sample.sqs.liveobjects.LoProperties;
+import com.orange.lo.sample.sqs.utils.ConnectorHealthActuatorEndpoint;
 import com.orange.lo.sample.sqs.utils.Counters;
 import com.orange.lo.sdk.LOApiClient;
 import io.micrometer.core.instrument.Counter;
@@ -47,6 +48,9 @@ class SqsSenderTest {
 
     @Mock
     private AmazonSQS amazonSQS;
+
+    @Mock
+    private ConnectorHealthActuatorEndpoint connectorHealthActuatorEndpoint;
 
     @Mock
     private LoProperties loProperties;
@@ -242,7 +246,7 @@ class SqsSenderTest {
 
     private SqsSender getSqsSender(RetryPolicy<Void> sendMessageRetryPolicy, RetryPolicy<Void> executeTaskRetryPolicy) {
         return new SqsSender(
-                amazonSQS, sqsProperties, loProperties, tpe, counters, null, sendMessageRetryPolicy, executeTaskRetryPolicy, amazonRetryCondition, loApiClient
+                amazonSQS, sqsProperties, loProperties, tpe, counters, connectorHealthActuatorEndpoint, sendMessageRetryPolicy, executeTaskRetryPolicy, amazonRetryCondition, loApiClient
         );
     }
 }
