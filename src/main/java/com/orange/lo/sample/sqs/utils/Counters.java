@@ -7,14 +7,12 @@
 
 package com.orange.lo.sample.sqs.utils;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.Executors;
-
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.stereotype.Component;
 
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.step.StepMeterRegistry;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 public class Counters {
@@ -25,13 +23,12 @@ public class Counters {
     private final Counter mesasageSentCounter;
     private final Counter mesasageSentFailedCounter;
     
-    public Counters(StepMeterRegistry registry) {
-    	mesasageReadCounter = registry.counter("message.read");
-        mesasageSentAttemptCounter = registry.counter("message.sent.attempt");
-        mesasageSentAttemptFailedCounter = registry.counter("message.sent.attempt.failed");
-        mesasageSentCounter = registry.counter("message.sent");
-        mesasageSentFailedCounter = registry.counter("message.sent.failed");
-        registry.start(Executors.defaultThreadFactory());
+    public Counters(MeterRegistry meterRegistry) {
+    	mesasageReadCounter = meterRegistry.counter("message.read");
+        mesasageSentAttemptCounter = meterRegistry.counter("message.sent.attempt");
+        mesasageSentAttemptFailedCounter = meterRegistry.counter("message.sent.attempt.failed");
+        mesasageSentCounter = meterRegistry.counter("message.sent");
+        mesasageSentFailedCounter = meterRegistry.counter("message.sent.failed");
     }
 
 	public Counter getMesasageReadCounter() {

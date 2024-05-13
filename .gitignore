@@ -33,3 +33,4 @@ hs_err_pid*
 
 /temp
 /logs
+/src/main/resources/application-dev.yml

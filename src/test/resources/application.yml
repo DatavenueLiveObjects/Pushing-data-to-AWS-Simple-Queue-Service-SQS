@@ -21,6 +21,11 @@ aws:
     region: test-region
     keep-alive-time: 678
 
+metrics:
+  namespace: CCS
+  dimension-name: connector-id
+  dimension-value: connector-123
+
 cloud:
   aws:
     region:

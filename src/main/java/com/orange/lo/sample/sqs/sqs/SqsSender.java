@@ -80,10 +80,20 @@ public class SqsSender {
     public void send(List<LoMessage> messages) {
         Failsafe.with(executeTaskRetryPolicy)
                 .run(() -> tpe.submit(() -> Failsafe.with(sendMessageRetryPolicy)
-                        .onFailure(test -> counters.getMesasageSentFailedCounter().increment(messages.size()))
-                        .onSuccess(test -> counters.getMesasageSentCounter().increment(messages.size()))
-                        .onComplete(test -> messages.forEach(m -> loApiClient.getDataManagementFifo().sendAck(m.getMessageId(), loProperties.getMessageQos())))
+                        .onFailure(test -> {
+                            LOG.debug("Cannot send messages to SQS because of: {}. Retrying...", test.getFailure().getMessage());
+                            counters.getMesasageSentFailedCounter().increment(messages.size());
+                        })
+                        .onSuccess(test -> {
+                            LOG.debug("Messages were sent to SQS");
+                            counters.getMesasageSentCounter().increment(messages.size());
+                        })
+                        .onComplete(test -> {
+                            LOG.debug("Acking messages");
+                            messages.forEach(m -> loApiClient.getDataManagementFifo().sendAck(m.getMessageId(), loProperties.getMessageQos()));
+                        })
                         .run(executionContext -> {
+                            LOG.debug("Sending messages to SQS");
                             counters.getMesasageSentAttemptCounter().increment(messages.size());
                             sendBatches(messages.stream().map(LoMessage::getMessage).collect(Collectors.toList()), executionContext.getAttemptCount());
                         })));

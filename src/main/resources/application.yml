@@ -21,6 +21,11 @@ aws:
     region: eu-central-1
     keep-alive-time: 10
 
+metrics:
+  namespace: CCS
+  dimension-name: connector-id
+  dimension-value:
+
 cloud:
   aws:
     stack:
