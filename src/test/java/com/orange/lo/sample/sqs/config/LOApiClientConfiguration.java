@@ -17,6 +17,10 @@ import com.orange.lo.sdk.fifomqtt.DataManagementFifo;
 @TestConfiguration
 public class LOApiClientConfiguration {
 
+    static {
+        System.setProperty("aws.region", "eu-west-1");
+    }
+
     @Bean
     public LOApiClient loApiClient() {
         DataManagementFifo dataManagementFifo = Mockito.mock(DataManagementFifo.class);

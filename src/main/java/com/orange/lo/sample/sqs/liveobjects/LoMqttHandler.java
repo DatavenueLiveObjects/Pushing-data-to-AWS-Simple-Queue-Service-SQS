@@ -36,6 +36,7 @@ public class LoMqttHandler implements DataManagementFifoCallback {
 
     @Override
     public void onMessage(int messageId, String message) {
+        LOG.debug("Received message with id = {}", messageId);
         mesasageReadCounter.increment();
         messageQueue.add(new LoMessage(messageId, message));
     }
