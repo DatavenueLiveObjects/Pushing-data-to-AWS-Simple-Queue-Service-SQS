@@ -8,6 +8,7 @@
 package com.orange.lo.sample.sqs.sqs;
 
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.retry.PredefinedRetryPolicies;
 import com.amazonaws.retry.RetryPolicy.RetryCondition;
 import com.amazonaws.services.sqs.AmazonSQS;
@@ -36,7 +37,10 @@ public class SqsClientConfig {
 
     @Bean
     public AmazonSQS amazonSQS() {
-        return AmazonSQSClientBuilder.standard().withRegion(sqsProperties.getRegion()).build();
+        return AmazonSQSClientBuilder
+                .standard()
+                .withCredentials(new ProfileCredentialsProvider(sqsProperties.getCustomerProfileName()))
+                .withRegion(sqsProperties.getRegion()).build();
     }
 
     @Bean
