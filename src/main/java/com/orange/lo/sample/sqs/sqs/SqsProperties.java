@@ -14,6 +14,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class SqsProperties {
 
+	private static final String SERVICE_PROFILE_NAME = "service-profile";
+	private static final String CUSTOMER_PROFILE_NAME = "customer-profile";
+
     private String queueUrl;
     private Integer threadPoolSize;
     private Long connectionTimeout;
@@ -77,5 +80,11 @@ public class SqsProperties {
 	}
 	public void setKeepAliveTime(Long keepAliveTime) {
 		this.keepAliveTime = keepAliveTime;
+	}
+	public String getServiceProfileName() {
+		return SERVICE_PROFILE_NAME;
+	}
+	public String getCustomerProfileName() {
+		return CUSTOMER_PROFILE_NAME;
 	}
 }
