@@ -41,12 +41,14 @@ public class ApplicationConfig {
 
 	@Bean
 	public MeterRegistry meterRegistry() {
+
 		CloudWatchAsyncClient cloudWatchAsyncClient = CloudWatchAsyncClient.builder()
 				.credentialsProvider(ProfileCredentialsProvider.create(sqsProperties.getServiceProfileName()))
 				.build();
 
 		CloudWatchMeterRegistry cloudWatchMeterRegistry = new CloudWatchMeterRegistry(cloudWatchConfig(), Clock.SYSTEM, cloudWatchAsyncClient);
-		cloudWatchMeterRegistry.config()
+
+    cloudWatchMeterRegistry.config()
 				.meterFilter(MeterFilter.deny(id -> !id.getName().startsWith("message")))
 				.commonTags(metricsProperties.getDimensionName(), metricsProperties.getDimensionValue());
 		return cloudWatchMeterRegistry;
