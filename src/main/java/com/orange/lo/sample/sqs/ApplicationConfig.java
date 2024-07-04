@@ -18,6 +18,7 @@ import io.micrometer.core.instrument.config.MeterFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
+import software.amazon.awssdk.regions.providers.AwsProfileRegionProvider;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
 
 import java.util.Queue;
@@ -44,11 +45,12 @@ public class ApplicationConfig {
 
 		CloudWatchAsyncClient cloudWatchAsyncClient = CloudWatchAsyncClient.builder()
 				.credentialsProvider(ProfileCredentialsProvider.create(sqsProperties.getServiceProfileName()))
+				.region(new AwsProfileRegionProvider(null, sqsProperties.getServiceProfileName()).getRegion())
 				.build();
 
 		CloudWatchMeterRegistry cloudWatchMeterRegistry = new CloudWatchMeterRegistry(cloudWatchConfig(), Clock.SYSTEM, cloudWatchAsyncClient);
 
-    cloudWatchMeterRegistry.config()
+    	cloudWatchMeterRegistry.config()
 				.meterFilter(MeterFilter.deny(id -> !id.getName().startsWith("message")))
 				.commonTags(metricsProperties.getDimensionName(), metricsProperties.getDimensionValue());
 		return cloudWatchMeterRegistry;
