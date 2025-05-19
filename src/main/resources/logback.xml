@@ -30,6 +30,8 @@
     <logger name="com.orange.lo.sample.sqs" level="DEBUG" />
     <logger name="com.amazonaws.util.EC2MetadataUtils" level="ERROR" />
     <Logger name="org.eclipse.paho.client.mqttv3"  level="FINE" />
+    <Logger name="org.apache.catalina.core" level="WARN" />
+    <Logger name="org.springframework.boot.web.embedded.tomcat" level="WARN" />
 
     <root level="INFO">
         <appender-ref ref="STDOUT" />

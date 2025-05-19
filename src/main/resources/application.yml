@@ -22,6 +22,8 @@ aws:
     keep-alive-time: 10
 
 metrics:
+  send-to-cloudwatch: false
+  use-service-profile: false
   namespace: CCS
   dimension-name: connector-id
   dimension-value:
