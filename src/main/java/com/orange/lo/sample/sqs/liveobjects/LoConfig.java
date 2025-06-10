@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 import java.util.Collections;
 
+import com.orange.lo.sdk.mqtt.DataManagementReconnectCallback;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.slf4j.Logger;
@@ -30,10 +31,12 @@ public class LoConfig {
 
     private final LoProperties loProperties;
     private final LoMqttHandler loMqttHandler;
+    private final DataManagementReconnectCallback reconnectHandler;
 
-    public LoConfig(LoProperties loProperties, LoMqttHandler loMqttHandler) {
+    public LoConfig(LoProperties loProperties, LoMqttHandler loMqttHandler, DataManagementReconnectCallback reconnectHandler) {
         this.loProperties = loProperties;
         this.loMqttHandler = loMqttHandler;
+        this.reconnectHandler = reconnectHandler;
     }
 
     @Bean
@@ -74,10 +77,11 @@ public class LoConfig {
         if ( loProperties.getConnectionTimeout() != null ) {
             builder.connectionTimeout(loProperties.getConnectionTimeout());
         }
-        
+
         builder.connectorType(LoProperties.getConnectorType());
         builder.connectorVersion(getConnectorVersion());
-        
+        builder.dataManagementReconnectCallback(reconnectHandler);
+
         return builder.build();
     }
     

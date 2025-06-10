@@ -1,7 +1,12 @@
+/**
+ * Copyright (c) Orange, Inc. and its affiliates. All Rights Reserved.
+ * <p>
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 package com.orange.lo.sample.sqs.utils;
 
-import com.orange.lo.sdk.LOApiClient;
-import com.orange.lo.sdk.fifomqtt.DataManagementFifo;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.Status;
@@ -10,12 +15,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConnectorHealthActuatorEndpoint implements HealthIndicator {
 
-    LOApiClient loApiClient;
-    boolean cloudConnectionStatus = true;
-    boolean loConnectionStatus = true;
+    Counters counters;
 
-    public ConnectorHealthActuatorEndpoint(LOApiClient loApiClient) {
-        this.loApiClient = loApiClient;
+    public ConnectorHealthActuatorEndpoint(Counters counters) {
+        this.counters = counters;
     }
 
     @Override
@@ -26,28 +29,17 @@ public class ConnectorHealthActuatorEndpoint implements HealthIndicator {
     @Override
     public Health health() {
         Health.Builder builder = new Health.Builder(Status.UP);
-        DataManagementFifo dataManagementFifo = loApiClient.getDataManagementFifo();
 
-        builder.withDetail("loMqttConnectionStatus", dataManagementFifo.isConnected() || loConnectionStatus);
-        builder.withDetail("cloudConnectionStatus", cloudConnectionStatus);
+        builder.withDetail("loMqttConnectionStatus", isLoConnectionStatus());
+        builder.withDetail("cloudConnectionStatus", isCloudConnectionStatus());
         return builder.build();
     }
 
-
-    public void setCloudConnectionStatus(boolean cloudConnectionStatus) {
-        this.cloudConnectionStatus = cloudConnectionStatus;
-    }
-
     public boolean isCloudConnectionStatus() {
-        return cloudConnectionStatus;
-    }
-
-    public void setLoConnectionStatus(boolean cloudConnectionStatus) {
-        this.loConnectionStatus = cloudConnectionStatus;
+        return counters.getCloudConnectionStatus().get() > 0;
     }
 
     public boolean isLoConnectionStatus() {
-        return loConnectionStatus;
+        return counters.getLoConnectionStatus().get() > 0;
     }
-
 }

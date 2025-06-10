@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -50,9 +51,6 @@ class SqsSenderTest {
     private AmazonSQS amazonSQS;
 
     @Mock
-    private ConnectorHealthActuatorEndpoint connectorHealthActuatorEndpoint;
-
-    @Mock
     private LoProperties loProperties;
 
     @Mock
@@ -69,7 +67,7 @@ class SqsSenderTest {
 
     @Mock
     private Counter mesasageSentAttemptFailedCounter;
-    
+
     @Mock
     private SqsProperties sqsProperties;
 
@@ -96,6 +94,7 @@ class SqsSenderTest {
     @Test
     void shouldPassMessagesBatchToAmazonSQS() {
         when(counters.getMesasageSentCounter()).thenReturn(mesasageSentCounter);
+        when(counters.getCloudConnectionStatus()).thenReturn(new AtomicInteger());
         when(sqsProperties.getQueueUrl()).thenReturn("queueUrl");
         when(counters.getMesasageSentAttemptCounter()).thenReturn(mesasageSentAttemptCounter);
         stubTPESubmit();
@@ -112,6 +111,7 @@ class SqsSenderTest {
     @Test
     void shouldPassEachMessagesBatchToAmazonSQSSeparately() {
         when(counters.getMesasageSentCounter()).thenReturn(mesasageSentCounter);
+        when(counters.getCloudConnectionStatus()).thenReturn(new AtomicInteger());
         when(sqsProperties.getQueueUrl()).thenReturn("queueUrl");
         when(counters.getMesasageSentAttemptCounter()).thenReturn(mesasageSentAttemptCounter);
         stubTPESubmit();
@@ -146,8 +146,9 @@ class SqsSenderTest {
         when(counters.getMesasageSentCounter()).thenReturn(mesasageSentCounter);
         when(counters.getMesasageSentAttemptCounter()).thenReturn(mesasageSentAttemptCounter);
         when(counters.getMesasageSentAttemptFailedCounter()).thenReturn(mesasageSentAttemptFailedCounter);
-        
-        
+        when(counters.getCloudConnectionStatus()).thenReturn(new AtomicInteger());
+
+
         doThrow(new AmazonClientException(EXCEPTION_MESSAGE))
                 .doReturn(null)
                 .when(amazonSQS).sendMessageBatch(any());
@@ -180,6 +181,7 @@ class SqsSenderTest {
 
         when(counters.getMesasageSentCounter()).thenReturn(mesasageSentCounter);
         when(counters.getMesasageSentAttemptCounter()).thenReturn(mesasageSentAttemptCounter);
+        when(counters.getCloudConnectionStatus()).thenReturn(new AtomicInteger());
         doThrow(new RuntimeException()).doReturn(null).when(amazonSQS).sendMessageBatch(any());
         stubTPESubmit();
 
@@ -241,12 +243,12 @@ class SqsSenderTest {
     }
 
     private List<LoMessage> getMessages(int amount) {
-        return IntStream.rangeClosed(1, amount).mapToObj(i -> new LoMessage(1,MESSAGE + i)).collect(Collectors.toList());
+        return IntStream.rangeClosed(1, amount).mapToObj(i -> new LoMessage(1, MESSAGE + i)).collect(Collectors.toList());
     }
 
     private SqsSender getSqsSender(RetryPolicy<Void> sendMessageRetryPolicy, RetryPolicy<Void> executeTaskRetryPolicy) {
         return new SqsSender(
-                amazonSQS, sqsProperties, loProperties, tpe, counters, connectorHealthActuatorEndpoint, sendMessageRetryPolicy, executeTaskRetryPolicy, amazonRetryCondition, loApiClient
+                amazonSQS, sqsProperties, loProperties, tpe, counters, sendMessageRetryPolicy, executeTaskRetryPolicy, amazonRetryCondition, loApiClient
         );
     }
 }

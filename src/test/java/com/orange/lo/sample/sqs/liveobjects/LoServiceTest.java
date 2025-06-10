@@ -10,6 +10,7 @@ package com.orange.lo.sample.sqs.liveobjects;
 
 import com.orange.lo.sample.sqs.sqs.SqsSender;
 import com.orange.lo.sample.sqs.utils.ConnectorHealthActuatorEndpoint;
+import com.orange.lo.sample.sqs.utils.Counters;
 import com.orange.lo.sdk.LOApiClient;
 import com.orange.lo.sdk.fifomqtt.DataManagementFifo;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +31,9 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class LoServiceTest {
+
+    @Mock
+    private Counters counters;
 
     @Mock
     LOApiClient loApiClient;
@@ -56,7 +60,7 @@ class LoServiceTest {
     }
 
     private void prepareService(LinkedList<LoMessage> messageQueue) {
-        service = new LoService(loApiClient, sqsSender, messageQueue, properties, connectorHealthActuatorEndpoint);
+        service = new LoService(loApiClient, sqsSender, messageQueue, properties, connectorHealthActuatorEndpoint, counters);
     }
 
     @Test

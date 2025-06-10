@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 public class Counters {
@@ -22,13 +23,17 @@ public class Counters {
     private final Counter mesasageSentAttemptFailedCounter;
     private final Counter mesasageSentCounter;
     private final Counter mesasageSentFailedCounter;
-    
+	private AtomicInteger loConnectionStatus;
+	private AtomicInteger cloudConnectionStatus;
+
     public Counters(MeterRegistry meterRegistry) {
     	mesasageReadCounter = meterRegistry.counter("message.read");
         mesasageSentAttemptCounter = meterRegistry.counter("message.sent.attempt");
         mesasageSentAttemptFailedCounter = meterRegistry.counter("message.sent.attempt.failed");
         mesasageSentCounter = meterRegistry.counter("message.sent");
         mesasageSentFailedCounter = meterRegistry.counter("message.sent.failed");
+		loConnectionStatus = meterRegistry.gauge("status.connection.lo", new AtomicInteger(1));
+		cloudConnectionStatus = meterRegistry.gauge("status.connection.cloud", new AtomicInteger(1));
     }
 
 	public Counter getMesasageReadCounter() {
@@ -50,7 +55,15 @@ public class Counters {
 	public Counter getMesasageSentFailedCounter() {
 		return mesasageSentFailedCounter;
 	}
-	
+
+    public AtomicInteger getLoConnectionStatus() {
+        return loConnectionStatus;
+    }
+
+    public AtomicInteger getCloudConnectionStatus() {
+        return cloudConnectionStatus;
+    }
+
 	public List<Counter> getAll() {
 		return Arrays.asList(mesasageReadCounter, mesasageSentAttemptCounter, mesasageSentAttemptFailedCounter, mesasageSentCounter, mesasageSentFailedCounter);
 	}

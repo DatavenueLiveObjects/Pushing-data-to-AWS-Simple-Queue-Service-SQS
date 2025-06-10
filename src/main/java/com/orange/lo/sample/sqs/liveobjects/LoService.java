@@ -10,6 +10,7 @@ package com.orange.lo.sample.sqs.liveobjects;
 
 import com.orange.lo.sample.sqs.sqs.SqsSender;
 import com.orange.lo.sample.sqs.utils.ConnectorHealthActuatorEndpoint;
+import com.orange.lo.sample.sqs.utils.Counters;
 import com.orange.lo.sdk.LOApiClient;
 import com.orange.lo.sdk.fifomqtt.DataManagementFifo;
 import com.orange.lo.sdk.mqtt.exceptions.LoMqttException;
@@ -36,9 +37,10 @@ public class LoService {
     private final LoProperties loProperties;
     private static final int DEFAULT_BATCH_SIZE = 10;
     private final ConnectorHealthActuatorEndpoint connectorHealthActuatorEndpoint;
+    private final Counters counters;
 
     public LoService(LOApiClient loApiClient, SqsSender sqsSender, Queue<LoMessage> messageQueue, LoProperties loProperties,
-                     ConnectorHealthActuatorEndpoint connectorHealthActuatorEndpoint) {
+                     ConnectorHealthActuatorEndpoint connectorHealthActuatorEndpoint, Counters counters) {
         LOG.info("LoService init...");
 
         this.sqsSender = sqsSender;
@@ -46,6 +48,7 @@ public class LoService {
         this.dataManagementFifo = loApiClient.getDataManagementFifo();
         this.loProperties = loProperties;
         this.connectorHealthActuatorEndpoint = connectorHealthActuatorEndpoint;
+        this.counters = counters;
     }
 
     @PostConstruct
@@ -54,7 +57,7 @@ public class LoService {
             dataManagementFifo.connect();
         } catch (LoMqttException e) {
             LOG.error("Problem with connection. Check Lo credentials. ", e);
-            connectorHealthActuatorEndpoint.setLoConnectionStatus(false);
+            counters.getLoConnectionStatus().set(0);
         }
 
         if (connectorHealthActuatorEndpoint.isCloudConnectionStatus() && connectorHealthActuatorEndpoint.isLoConnectionStatus())
