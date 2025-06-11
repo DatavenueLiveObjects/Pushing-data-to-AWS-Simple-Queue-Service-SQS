@@ -10,6 +10,7 @@ package com.orange.lo.sample.sqs.liveobjects;
 
 import com.orange.lo.sample.sqs.sqs.SqsSender;
 import com.orange.lo.sample.sqs.utils.ConnectorHealthActuatorEndpoint;
+import com.orange.lo.sample.sqs.utils.Counters;
 import com.orange.lo.sdk.LOApiClient;
 import com.orange.lo.sdk.fifomqtt.DataManagementFifo;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +33,9 @@ import static org.mockito.Mockito.*;
 class LoServiceTest {
 
     @Mock
+    private Counters counters;
+
+    @Mock
     LOApiClient loApiClient;
 
     @Mock
@@ -43,9 +47,6 @@ class LoServiceTest {
     @Mock
     private LoProperties properties;
 
-    @Mock
-    private ConnectorHealthActuatorEndpoint connectorHealthActuatorEndpoint;
-
     private LoService service;
 
 
@@ -56,13 +57,13 @@ class LoServiceTest {
     }
 
     private void prepareService(LinkedList<LoMessage> messageQueue) {
-        service = new LoService(loApiClient, sqsSender, messageQueue, properties, connectorHealthActuatorEndpoint);
+        service = new LoService(loApiClient, sqsSender, messageQueue, properties, counters);
     }
 
     @Test
     void shouldStartMethodDoTriggerDataManagementFifo() {
-        when(connectorHealthActuatorEndpoint.isLoConnectionStatus()).thenReturn(true);
-        when(connectorHealthActuatorEndpoint.isCloudConnectionStatus()).thenReturn(true);
+        when(counters.isLoConnectionStatusUp()).thenReturn(true);
+        when(counters.isCloudConnectionStatusUp()).thenReturn(true);
 
         // when
         service.start();

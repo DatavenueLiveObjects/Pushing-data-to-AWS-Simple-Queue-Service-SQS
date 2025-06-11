@@ -16,7 +16,6 @@ import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
 import com.orange.lo.sample.sqs.liveobjects.LoMessage;
 import com.orange.lo.sample.sqs.liveobjects.LoProperties;
-import com.orange.lo.sample.sqs.utils.ConnectorHealthActuatorEndpoint;
 import com.orange.lo.sample.sqs.utils.Counters;
 import com.orange.lo.sdk.LOApiClient;
 import net.jodah.failsafe.Failsafe;
@@ -45,7 +44,6 @@ public class SqsSender {
     private final LOApiClient loApiClient;
     private final AmazonSQS sqs;
     private final Counters counters;
-    private final ConnectorHealthActuatorEndpoint connectorHealthActuatorEndpoint;
     private final ThreadPoolExecutor tpe;
     private final Random random;
     private final RetryPolicy<Void> sendMessageRetryPolicy;
@@ -58,7 +56,6 @@ public class SqsSender {
             LoProperties loProperties,
             ThreadPoolExecutor tpe,
             Counters counters,
-            ConnectorHealthActuatorEndpoint connectorHealthActuatorEndpoint,
             RetryPolicy<Void> sendMessageRetryPolicy,
             RetryPolicy<Void> executeTaskRetryPolicy,
             RetryCondition amazonRetryCondition,
@@ -71,7 +68,6 @@ public class SqsSender {
         this.random = new Random();
         this.tpe = tpe;
         this.counters = counters;
-        this.connectorHealthActuatorEndpoint = connectorHealthActuatorEndpoint;
         this.sendMessageRetryPolicy = sendMessageRetryPolicy;
         this.executeTaskRetryPolicy = executeTaskRetryPolicy;
         this.amazonRetryCondition = amazonRetryCondition;
@@ -116,10 +112,10 @@ public class SqsSender {
 
         try {
             sqs.sendMessageBatch(sendBatchRequest);
-            connectorHealthActuatorEndpoint.setCloudConnectionStatus(true);
+            counters.setCloudConnectionStatus(true);
         } catch (final AmazonClientException ace) {
-            LOG.error("Problem with connection. " + ace.getMessage(), ace);
-            connectorHealthActuatorEndpoint.setCloudConnectionStatus(false);
+            LOG.error("Problem with connection. {}", ace.getMessage(), ace);
+            counters.setCloudConnectionStatus(false);
             counters.getMesasageSentAttemptFailedCounter().increment(sendBatchRequest.getEntries().size());
             boolean shouldRetry = amazonRetryCondition.shouldRetry(sendBatchRequest, ace, attemptCount);
             throw new RetryableAmazonClientException(ace, shouldRetry);
@@ -147,11 +143,11 @@ public class SqsSender {
         } catch (EmptyBatchRequestException ignored) {
             LOG.info("Checking AWS connection");
         } catch (AmazonSQSException e) {
-            LOG.error("Problem with connection. Check AWS credentials. " + e.getErrorMessage(), e);
-            connectorHealthActuatorEndpoint.setCloudConnectionStatus(false);
+            LOG.error("Problem with connection. Check AWS credentials. {}", e.getErrorMessage(), e);
+            counters.setCloudConnectionStatus(false);
         } catch (Exception e) {
-            LOG.error("Problem with connection. " + e.getMessage(), e);
-            connectorHealthActuatorEndpoint.setCloudConnectionStatus(false);
+            LOG.error("Problem with connection. {}", e.getMessage(), e);
+            counters.setCloudConnectionStatus(false);
         }
     }
 }
