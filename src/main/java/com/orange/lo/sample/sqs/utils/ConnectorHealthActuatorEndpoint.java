@@ -30,16 +30,8 @@ public class ConnectorHealthActuatorEndpoint implements HealthIndicator {
     public Health health() {
         Health.Builder builder = new Health.Builder(Status.UP);
 
-        builder.withDetail("loMqttConnectionStatus", isLoConnectionStatus());
-        builder.withDetail("cloudConnectionStatus", isCloudConnectionStatus());
+        builder.withDetail("loMqttConnectionStatus", counters.isLoConnectionStatusUp());
+        builder.withDetail("cloudConnectionStatus", counters.isCloudConnectionStatusUp());
         return builder.build();
-    }
-
-    public boolean isCloudConnectionStatus() {
-        return counters.getCloudConnectionStatus().get() > 0;
-    }
-
-    public boolean isLoConnectionStatus() {
-        return counters.getLoConnectionStatus().get() > 0;
     }
 }

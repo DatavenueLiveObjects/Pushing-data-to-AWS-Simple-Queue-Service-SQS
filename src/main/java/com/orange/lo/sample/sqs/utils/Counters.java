@@ -56,13 +56,21 @@ public class Counters {
 		return mesasageSentFailedCounter;
 	}
 
-    public AtomicInteger getLoConnectionStatus() {
-        return loConnectionStatus;
-    }
+	public void setLoConnectionStatus(boolean status) {
+		loConnectionStatus.set(status ? 1 : 0);
+	}
 
-    public AtomicInteger getCloudConnectionStatus() {
-        return cloudConnectionStatus;
-    }
+	public void setCloudConnectionStatus(boolean status) {
+		cloudConnectionStatus.set(status ? 1 : 0);
+	}
+
+	public boolean isCloudConnectionStatusUp() {
+		return cloudConnectionStatus.get() > 0;
+	}
+
+	public boolean isLoConnectionStatusUp() {
+		return loConnectionStatus.get() > 0;
+	}
 
 	public List<Counter> getAll() {
 		return Arrays.asList(mesasageReadCounter, mesasageSentAttemptCounter, mesasageSentAttemptFailedCounter, mesasageSentCounter, mesasageSentFailedCounter);

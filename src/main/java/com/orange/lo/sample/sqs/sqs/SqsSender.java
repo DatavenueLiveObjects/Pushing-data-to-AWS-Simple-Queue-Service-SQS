@@ -112,10 +112,10 @@ public class SqsSender {
 
         try {
             sqs.sendMessageBatch(sendBatchRequest);
-            counters.getCloudConnectionStatus().set(1);
+            counters.setCloudConnectionStatus(true);
         } catch (final AmazonClientException ace) {
             LOG.error("Problem with connection. {}", ace.getMessage(), ace);
-            counters.getCloudConnectionStatus().set(0);
+            counters.setCloudConnectionStatus(false);
             counters.getMesasageSentAttemptFailedCounter().increment(sendBatchRequest.getEntries().size());
             boolean shouldRetry = amazonRetryCondition.shouldRetry(sendBatchRequest, ace, attemptCount);
             throw new RetryableAmazonClientException(ace, shouldRetry);
@@ -144,10 +144,10 @@ public class SqsSender {
             LOG.info("Checking AWS connection");
         } catch (AmazonSQSException e) {
             LOG.error("Problem with connection. Check AWS credentials. {}", e.getErrorMessage(), e);
-            counters.getCloudConnectionStatus().set(0);
+            counters.setCloudConnectionStatus(false);
         } catch (Exception e) {
             LOG.error("Problem with connection. {}", e.getMessage(), e);
-            counters.getCloudConnectionStatus().set(0);
+            counters.setCloudConnectionStatus(false);
         }
     }
 }

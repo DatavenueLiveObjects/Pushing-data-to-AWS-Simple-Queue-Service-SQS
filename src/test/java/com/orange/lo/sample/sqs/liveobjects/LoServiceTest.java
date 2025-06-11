@@ -47,9 +47,6 @@ class LoServiceTest {
     @Mock
     private LoProperties properties;
 
-    @Mock
-    private ConnectorHealthActuatorEndpoint connectorHealthActuatorEndpoint;
-
     private LoService service;
 
 
@@ -60,13 +57,13 @@ class LoServiceTest {
     }
 
     private void prepareService(LinkedList<LoMessage> messageQueue) {
-        service = new LoService(loApiClient, sqsSender, messageQueue, properties, connectorHealthActuatorEndpoint, counters);
+        service = new LoService(loApiClient, sqsSender, messageQueue, properties, counters);
     }
 
     @Test
     void shouldStartMethodDoTriggerDataManagementFifo() {
-        when(connectorHealthActuatorEndpoint.isLoConnectionStatus()).thenReturn(true);
-        when(connectorHealthActuatorEndpoint.isCloudConnectionStatus()).thenReturn(true);
+        when(counters.isLoConnectionStatusUp()).thenReturn(true);
+        when(counters.isCloudConnectionStatusUp()).thenReturn(true);
 
         // when
         service.start();

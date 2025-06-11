@@ -14,11 +14,13 @@ import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
 import com.orange.lo.sample.sqs.liveobjects.LoMessage;
 import com.orange.lo.sample.sqs.liveobjects.LoProperties;
-import com.orange.lo.sample.sqs.utils.ConnectorHealthActuatorEndpoint;
 import com.orange.lo.sample.sqs.utils.Counters;
 import com.orange.lo.sdk.LOApiClient;
 import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.step.StepMeterRegistry;
 import net.jodah.failsafe.RetryPolicy;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -56,7 +58,6 @@ class SqsSenderTest {
     @Mock
     private LOApiClient loApiClient;
 
-    @Mock
     private Counters counters;
 
     @Mock
@@ -91,12 +92,15 @@ class SqsSenderTest {
         });
     }
 
+    @BeforeEach
+    void setUp() {
+        MeterRegistry meterRegistry = mockMeterRegistry();
+        this.counters = new Counters(meterRegistry);
+    }
+
     @Test
     void shouldPassMessagesBatchToAmazonSQS() {
-        when(counters.getMesasageSentCounter()).thenReturn(mesasageSentCounter);
-        when(counters.getCloudConnectionStatus()).thenReturn(new AtomicInteger());
         when(sqsProperties.getQueueUrl()).thenReturn("queueUrl");
-        when(counters.getMesasageSentAttemptCounter()).thenReturn(mesasageSentAttemptCounter);
         stubTPESubmit();
 
         SqsSender sqsSender = getSqsSender(new RetryPolicy<>(), new RetryPolicy<>());
@@ -110,10 +114,7 @@ class SqsSenderTest {
 
     @Test
     void shouldPassEachMessagesBatchToAmazonSQSSeparately() {
-        when(counters.getMesasageSentCounter()).thenReturn(mesasageSentCounter);
-        when(counters.getCloudConnectionStatus()).thenReturn(new AtomicInteger());
         when(sqsProperties.getQueueUrl()).thenReturn("queueUrl");
-        when(counters.getMesasageSentAttemptCounter()).thenReturn(mesasageSentAttemptCounter);
         stubTPESubmit();
 
         List<List<LoMessage>> batches = Arrays.asList(
@@ -142,11 +143,6 @@ class SqsSenderTest {
             catchedException.set(e);
             return true;
         });
-
-        when(counters.getMesasageSentCounter()).thenReturn(mesasageSentCounter);
-        when(counters.getMesasageSentAttemptCounter()).thenReturn(mesasageSentAttemptCounter);
-        when(counters.getMesasageSentAttemptFailedCounter()).thenReturn(mesasageSentAttemptFailedCounter);
-        when(counters.getCloudConnectionStatus()).thenReturn(new AtomicInteger());
 
 
         doThrow(new AmazonClientException(EXCEPTION_MESSAGE))
@@ -179,9 +175,6 @@ class SqsSenderTest {
             return true;
         });
 
-        when(counters.getMesasageSentCounter()).thenReturn(mesasageSentCounter);
-        when(counters.getMesasageSentAttemptCounter()).thenReturn(mesasageSentAttemptCounter);
-        when(counters.getCloudConnectionStatus()).thenReturn(new AtomicInteger());
         doThrow(new RuntimeException()).doReturn(null).when(amazonSQS).sendMessageBatch(any());
         stubTPESubmit();
 
@@ -250,5 +243,18 @@ class SqsSenderTest {
         return new SqsSender(
                 amazonSQS, sqsProperties, loProperties, tpe, counters, sendMessageRetryPolicy, executeTaskRetryPolicy, amazonRetryCondition, loApiClient
         );
+    }
+
+    private MeterRegistry mockMeterRegistry() {
+        StepMeterRegistry meterRegistry = mock(StepMeterRegistry.class);
+        when(meterRegistry.counter("message.read")).thenReturn(mock(Counter.class));
+        when(meterRegistry.counter("message.sent")).thenReturn(mesasageSentCounter);
+        when(meterRegistry.counter("message.sent.attempt")).thenReturn(mesasageSentAttemptCounter);
+        when(meterRegistry.counter("message.sent.attempt.failed")).thenReturn(mesasageSentAttemptFailedCounter);
+        when(meterRegistry.counter("message.sent.failed")).thenReturn(mock(Counter.class));
+        when(meterRegistry.gauge(eq("status.connection.lo"), any())).thenReturn(new AtomicInteger());
+        when(meterRegistry.gauge(eq("status.connection.cloud"), any())).thenReturn(new AtomicInteger());
+
+        return meterRegistry;
     }
 }

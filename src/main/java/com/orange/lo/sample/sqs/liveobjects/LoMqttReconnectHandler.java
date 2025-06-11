@@ -22,11 +22,11 @@ public class LoMqttReconnectHandler implements DataManagementReconnectCallback {
 
     @Override
     public void connectComplete(boolean b, String s) {
-        counters.getLoConnectionStatus().set(1);
+        counters.setLoConnectionStatus(true);
     }
 
     @Override
     public void connectionLost(Throwable throwable) {
-        counters.getLoConnectionStatus().set(0);
+        counters.setLoConnectionStatus(false);
     }
 }
